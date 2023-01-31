@@ -1,0 +1,88 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="md:col-5">
+      <div class="card no-margin">
+        <form #brandSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Marca</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field col">
+              <label for="Identification" class="formTitle">Buscar</label>
+              <div class="input-group-clear">
+                <input id="input" type="text" pInputText placeholder="Nome da Marca" [(ngModel)]="brandSearch.name"
+                  name="search" />
+                <a (click)="resetSearchForm()" *ngIf="brandSearch.name"><i class="pi pi-times"></i></a>
+              </div>
+            </div>
+            <div class="md:col-3 mt-3 pt-3">
+              <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+            </div>
+            <div class="md:col-12">
+              <p-table #dt [columns]="cols" [value]="brandList" dataKey="id" [style]="{'margin-bottom':'20px'}"
+                [responsive]="true" selectionMode="single" [(selection)]="brandRegister" (onRowSelect)="edit($event)"
+                (onRowUnselect)="resetRegisterForm()" [resizableColumns]="true" [rows]="10"
+                [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}">
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr [pSelectableRow]="rowData">
+                    <td>
+                      {{rowData.name}}
+                    </td>
+                    <td>
+                      {{rowData.active == true ? 'Ativo' : 'Inativo'}}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col-12 lg:col-7">
+      <div class="card no-margin">
+        <form #brandRegisterForm="ngForm" (ngSubmit)="save()" novalidate>
+          <h5>Cadastro de Marca</h5>
+          <div class="p-fluid grid form-group">
+            <div class="md:col-9 field">
+              <label for="name" class="formTitle">Nome <span class="text-danger">*</span></label>
+              <input id="name" type="text" pInputText [(ngModel)]="brandRegister.name" name="registerName"
+                autocomplete="off" required />
+            </div>
+            <div class="md:col-3 field">
+              <label for="active" class="formTitle">Ativo</label>
+              <div class="field-input-switch">
+                <p-inputSwitch [(ngModel)]="brandRegister.active" name="active" class="input-switch-component">
+                </p-inputSwitch>
+              </div>
+            </div>
+
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="button" label="Cancelar" icon="fa fa-ban"
+                class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="brandRegister.id" pButton
+                (click)="resetRegisterForm()"></button>
+              <button type="button" label="Excluir" icon="fa fa-trash-o"
+                class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="brandRegister.id" pButton
+                (click)="remove(brandRegister)"></button>
+              <button type="button" label="Novo" icon="fa fa-file-o" pButton
+                class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm()"></button>
+              <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"
+                [disabled]="brandRegisterForm.invalid"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

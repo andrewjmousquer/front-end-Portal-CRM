@@ -1,0 +1,55 @@
+<div class="p-fluid p-formgrid">
+  <div class="grid">
+    <div class="field col">
+      <div class="mb-5">
+        <div class="col-12 pt-3">
+          <h5 class="mb-0">Inserir Documentos</h5>
+          <hr class="mt-1" />
+        </div>
+      </div>
+      <div class="grid" style="align-items: center;">
+        <div class="col">
+          <p-dropdown id="documentType" [options]="documentTypeList" [(ngModel)]="selectedDocumentType"
+            name="documentType" optionLabel="label" [showClear]="false" required>
+          </p-dropdown>
+        </div>
+
+        <div class="col">
+          <p-fileUpload #fileArchive styleClass="p-button-outlined p-button-secondary" id="image" name="demo[]"
+            mode="basic" chooseLabel="Upload" (onSelect)="onLocalUpload($event, fileArchive)" [showUploadButton]="false"
+            [auto]="true">
+          </p-fileUpload>
+        </div>
+      </div>
+      <br>
+      <div *ngFor="let document of documents"
+        style="padding: 1rem; border-width: 1px; border-style: solid;  border-color: rgb(231, 231, 231);">
+        <div class="grid">
+          <div class="field col">
+            <img [src]="document.file" style="width: 100%; " />
+          </div>
+          <div class="field col">
+            <label><strong>{{document.label}}</strong></label>
+            <br><br>
+            <label>Upload por: {{document.userUpload}}</label>
+            <label>Upload em {{document.dateUpload | date:'dd/MM/YYYY'}} às {{document.dateUpload | date:'HH:mm'}}
+            </label>
+          </div>
+          <div class="field col">
+            <button type="button" label="Excluir" icon="fa fa-trash-o"
+              class="p-button-outlined p-button-danger mr-3 md:w-10rem" pButton
+              (click)="removeDocument(document)"></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="field col">
+      <div class="mb-5">
+        <!-- <div class="col-12 pt-3">
+          <h5 class="mb-0"></h5>
+          <hr class="mt-1" />
+        </div> -->
+      </div>
+    </div>
+  </div>

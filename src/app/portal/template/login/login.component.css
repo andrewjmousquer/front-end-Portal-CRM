@@ -1,0 +1,49 @@
+:host {
+    display: block;
+}
+.login-body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    background: #222;
+    text-align: center;
+    color: #fff;
+    padding: 0em;
+}
+
+.login-body .login-panel{
+    border-top: 4px solid #033979;
+}
+
+.login-body .login-panel h1{
+    background-color: #033979;
+    color: white;
+}
+
+.login-body .login-panel button{
+    display: inline;
+    text-align: center;
+    color: white;
+    background-color: #033979;
+    border: 1px solid #033979;
+}
+
+.expired-password-dialog {
+    width: 50vw;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.expired-password-form {
+    text-align: center;
+    padding: 36px 10px;
+}
+
+.jasper-logout-iframe {
+    visibility: hidden;
+}

@@ -1,0 +1,95 @@
+<div class="ui-fluid">
+    <div class="grid">
+      <div class="col-12 lg:col-6">
+        <div class="card no-margin">
+          <form #proposalApprovalRuleSearchForm="ngForm" (ngSubmit)="search($event)">
+            <h5>Busca de Alçada de Aprovação</h5>
+            <div class="p-fluid grid form-group">
+              <div class="field col">
+                <label for="searchValue" class="formTitle">Buscar</label>
+                <div class="input-group-clear">
+                  <input id="input" type="text" pInputText 
+                    [(ngModel)]="searchValue" name="search" />
+                  <a (click)="resetSearchForm()" *ngIf="searchValue"><i class="pi pi-times"></i></a>
+                </div>
+              </div>
+              <div class="md:col-3 mt-3 pt-3">
+                <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+              </div>
+              <div class="md:col-12">
+                <p-table #dt [columns]="cols" [value]="proposalApprovalRuleList" dataKey="id" [style]="{'margin-bottom':'20px'}"
+                [responsive]="true" selectionMode="single" [(selection)]="proposalAprovalRuleRegister" 
+                (onRowSelect)="edit()" (onRowUnselect)="resetRegisterForm()"
+                [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true" [resizableColumns]="true">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngClass]="col.class">
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr [pSelectableRow]="rowData">
+                    <td>
+                      {{rowData.job.name}}
+                    </td>
+                    <td>
+                      {{rowData.value | currency : 'R$'}}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="md:col-6">
+        <div class="card no-margin">
+          <form #proposalApprovalRuleRegisterForm="ngForm" (ngSubmit)="save()" novalidate>
+            <h5>Cadastro de Alçada de Aprovação</h5>
+            <div class="p-fluid form-group">
+              <div class="grid">
+                <div class="field col">
+                  <label for="job" class="formTitle">Cargo<span class="text-danger">*</span></label>
+                  <p-dropdown id="job" name="job" [options]="jobList"
+                    [autoDisplayFirst]="false" [(ngModel)]="proposalAprovalRuleRegister.job" dataKey="id"
+                    optionLabel="name" [showClear]="false" required>
+                  </p-dropdown>
+                </div>
+                <div class="md:col-6 field">
+                    <label for="value" class="formTitle">Valor </label>
+                    <div class="p-inputgroup">
+                      <span class="p-inputgroup-addon">R$</span>
+                      <p-inputNumber [(ngModel)]="proposalAprovalRuleRegister.value" mode="decimal" 
+                      [minFractionDigits]="2" [maxFractionDigits]="2"
+                      id="value" name="value"></p-inputNumber>
+                    </div>
+                  </div>
+                </div>
+              <div class="col-12 flex flex-row justify-content-end py-0">
+                <div class="col-12 flex flex-row justify-content-end py-0">
+                    <button type="button" label="Cancelar"  *ngIf="proposalAprovalRuleRegister.id"
+                       class="p-button-outlined p-button-light mr-3 md:w-10rem sm:w-10rem lg:w-10rem xl:w-10rem" pButton
+                       (click)="resetRegisterForm()"></button>
+                    <button type="button" label="Excluir" icon="fa fa-trash-o" *ngIf="proposalAprovalRuleRegister.id" 
+                      class="p-button-outlined p-button-danger mr-3 md:w-10rem sm:w-10rem lg:w-10rem xl:w-10rem" 
+                      pButton (click)="remove(proposalAprovalRuleRegister)"></button>
+                    <button type="button" label="Novo" icon="fa fa-file-o" pButton 
+                      class="p-button-outlined p-button-secondary mr-3 md:w-10rem sm:w-10rem lg:w-10rem xl:w-10rem" 
+                      (click)="resetRegisterForm()"></button>
+                    <button type="submit" label="Salvar" icon="fa fa-save" class="md:w-10rem" pButton></button>
+                  </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

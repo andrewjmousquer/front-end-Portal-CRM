@@ -1,0 +1,114 @@
+<div class="col-12 lg:col-12">
+
+    <form #duplicateSingleForm="ngForm" (ngSubmit)="save()" novalidate>
+
+        <h6>Ação</h6>
+        <div class="col-12 flex flex-row py-0">
+            <div class="field-radiobutton md:col-1">
+                <p-radioButton name="action" value="Ajustar" [(ngModel)]="action" inputId="actionAjustar"
+                (click)="clickActionOrAdjustment()" required></p-radioButton>
+                <label for="actionAjustar">Ajustar</label>
+            </div>
+            <div class="field-radiobutton md:col-1">
+                <p-radioButton name="action" value="Redefinir" [(ngModel)]="action" inputId="actionRedefinir"
+                (click)="clickActionOrAdjustment()" required></p-radioButton>
+                <label for="actionRedefinir">Redefinir</label>
+            </div>
+        </div>
+
+        <h6>Ajuste</h6>
+        <div class="col-12 flex flex-row py-0">
+            <div class="field-radiobutton md:col-1">
+                <p-radioButton name="adjustment" value="Porcentagem" [(ngModel)]="adjustment" inputId="adjustmentPorcentagem"
+                (click)="clickActionOrAdjustment()" required></p-radioButton>
+                <label for="adjustmentPorcentagem">Porcentagem</label>
+            </div>
+            <div class="field-radiobutton md:col-1">
+                <p-radioButton name="adjustment" value="Monetário" [(ngModel)]="adjustment" inputId="adjustmentMonetario"
+                (click)="clickActionOrAdjustment()" required></p-radioButton>
+                <label for="adjustmentMonetario">Monetário</label>
+            </div>
+        </div>
+
+        <div *ngIf="percentValueShow">
+            <h6>Porcentagem</h6>
+            <div class="col-12 flex flex-row py-0">
+                <div class="md:col-2 field">
+                    <div class="p-inputgroup">
+                        <span class="p-inputgroup-addon">%</span>
+                        <p-inputNumber [(ngModel)]="percentValue" mode="decimal" name="percentValue"
+                            [minFractionDigits]="2" [maxFractionDigits]="2" required
+                            (onInput)="onInputPercentValue($event.value)">
+                        </p-inputNumber>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="totalValueShow">
+            <h6>Valor</h6>
+            <div class="col-12 flex flex-row py-0">
+                <div class="md:col-2 field">
+                    <div class="p-inputgroup">
+                        <span class="p-inputgroup-addon">R$</span>
+                        <p-inputNumber [(ngModel)]="totalValue" mode="decimal" name="totalValue"
+                            [minFractionDigits]="2" [maxFractionDigits]="2" required
+                            (onInput)="onInputTotalValue($event.value)">
+                        </p-inputNumber>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h6>Valor - Original</h6>
+        <div class="col-12 flex flex-row py-0">
+            <div class="md:col-2 field">
+                <div class="p-inputgroup">
+                    <span class="p-inputgroup-addon">R$</span>
+                    <p-inputNumber [(ngModel)]="totalValueOriginal" mode="decimal" name="totalValueOriginal"
+                        [minFractionDigits]="2" [maxFractionDigits]="2" [disabled]="true">
+                    </p-inputNumber>
+                </div>
+            </div>
+        </div>
+
+        <h6>Valor - Novo</h6>
+        <div class="col-12 flex flex-row py-0">
+            <div class="md:col-2 field">
+                <div class="p-inputgroup">
+                    <span class="p-inputgroup-addon">R$</span>
+                    <p-inputNumber [(ngModel)]="totalValueNew" mode="decimal" name="totalValueNew"
+                        [minFractionDigits]="2" [maxFractionDigits]="2" [disabled]="true">
+                    </p-inputNumber>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 flex flex-row py-0">
+            <div class="md:col-2 field">
+                <h6>Período Início</h6>
+                <p-calendar name="startDate" [(ngModel)]="startDate" [showButtonBar]="true"
+                    [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy"
+                    yearRange="2000:2100" appendTo="body" required>
+                </p-calendar>
+            </div>
+
+            <div class="md:col-2 field">
+                <h6>Período Fim</h6>
+                <p-calendar name="endDate" [(ngModel)]="endDate" [showButtonBar]="true"
+                    [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy"
+                    yearRange="2000:2100" appendTo="body" required>
+                </p-calendar>
+            </div>
+        </div>
+
+        <div class="col-12 flex flex-row justify-content-start py-0">
+            <button type="button" label="Cancelar" pButton icon="fa fa-ban" 
+                class="p-button-outlined p-button-light mr-3 md:w-10rem" (click)="cancel()"> 
+            </button>
+            <button type="submit" label="Aplicar" pButton icon="fa fa-save" class="mr-3 md:w-10rem"
+            [disabled]="duplicateSingleForm.invalid">
+            </button>
+        </div>
+    </form>
+</div>

@@ -1,0 +1,108 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="col-12 lg:col-12">
+      <div class="card no-margin">
+        <form #transactionSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Histórico</h5>
+          <div class="form-group">
+            <div class="p-fluid p-formgrid grid">
+              <div class="md:col-2 field">
+                <label for="float-input" class="formTitle">Data início</label>
+                <p-calendar name="flt-start-date" [(ngModel)]="saleSearch.date" [showButtonBar]="true"
+                  [monthNavigator]="true" placeholder="00/00/0000" [yearNavigator]="true" [showIcon]="true"
+                  dateFormat="dd/mm/yy" yearRange="2000:2100">
+                </p-calendar>
+              </div>
+              <div class="md:col-2 field">
+                <label for="float-input" class="formTitle">Data fim</label>
+                <p-calendar name="flt-end-date" [(ngModel)]="saleSearch.dateEnd" [showButtonBar]="true"
+                  placeholder="00/00/0000" [monthNavigator]="true" [yearNavigator]="true"
+                  [showIcon]="true" dateFormat="dd/mm/yy" yearRange="2000:2100">
+                </p-calendar>
+              </div>
+              <div class="md:col-2 field">
+                <label for="float-input" class="formTitle">Cliente</label>
+                <input name="flt-name" [(ngModel)]="saleSearch.customer" pInputText>
+              </div>
+              <div class="md:col-2 field">
+                <label for="float-input" class="formTitle">Tipo de Pagamento</label>
+                <p-dropdown name="dlg-tansaction-type" filter="true" [options]="paymentTypeList"
+                  [(ngModel)]="paymentType" [autoDisplayFirst]="false" optionLabel="value" optionValue="value"
+                  [showClear]="false"></p-dropdown>
+              </div>
+              <div class="md:col-2 field">
+                <label for="float-input" class="formTitle">User</label>
+                <p-dropdown name="dlg-tansaction-type" filter="true" [options]="userList" [(ngModel)]="saleSearch.user"
+                  [autoDisplayFirst]="false" optionLabel="person.name" [showClear]="false"></p-dropdown>
+              </div>
+              <div class="md:col-1">
+                <button type="button" label="Limpar" icon="fa fa-times" pButton
+                  class="p-button-outlined p-button-light mt-4" (click)="resetSearchForm()"></button>
+              </div>
+              <div class="md:col-1 mt-3 pt-3">
+                <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3"
+                  pButton></button>
+              </div>
+            </div>
+
+            <div class="grid">
+              <div class="md:col-12">
+                <p-table #dt [columns]="cols" [value]="saleList" dataKey="id" [responsive]="true"
+                  [rows]="saleSearch.rows" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true"
+                  [totalRecords]="totalRecords" [lazy]="true" (onLazyLoad)="search($event)" [resizableColumns]="true">
+                  <ng-template pTemplate="caption">
+                    <div class="ui-helper-clearfix" style="text-align: end">
+                      <span (click)="exportExcel()" class="icon-export" title="Exportar Excel">
+                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                      </span>
+                      <span (click)="exportPdf()" class="icon-export" title="Exportar PDF">
+                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                      </span>
+                    </div>
+                  </ng-template>
+                  <ng-template pTemplate="header" let-columns>
+                    <tr class="row d-flex justify-content-center">
+                      <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}">
+                        {{col.header}}
+                      </th>
+                      <th style="width: 50px;"></th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-rowData let-columns="columns">
+                    <tr [pSelectableRow]="rowData">
+                      <td [ngStyle]="{'width': cols[0].width}" class="table-item p-3"
+                        title="{{rowData['date'] | date:'dd/MM/yyyy'}}">{{rowData['date'] | date:"dd/MM/yyyy"}}</td>
+                      <td [ngStyle]="{'width': cols[1].width}" class="table-item p-3"
+                        title="{{rowData['customer'] | uppercase}}">{{rowData['customer'] | uppercase}}</td>
+                      <td [ngStyle]="{'width': cols[2].width}" class="table-item p-3"
+                        title="{{rowData['paymentType']}}">{{rowData['paymentType'] | uppercase}}</td>
+                      <td [ngStyle]="{'width': cols[3].width}" class="table-item p-3" title="{{rowData['value']}}">
+                        {{rowData['value'] | currency : 'R$' }}</td>
+                      <td [ngStyle]="{'width': cols[4].width}" class="table-item p-3"
+                        title="{{rowData['firstPayment']}}">{{rowData['firstPayment'] | currency : 'R$'}}</td>
+                      <td [ngStyle]="{'width': cols[5].width}" class="table-item p-3" title="{{rowData['portion'] }}">
+                        {{rowData['portion']}}</td>
+                      <td [ngStyle]="{'width': cols[6].width}" class="table-item p-3" title="{{rowData['tax'] }}">
+                        {{rowData['tax']}}</td>
+                      <td [ngStyle]="{'width': cols[7].width}" class="table-item p-3"
+                        title="{{rowData['user'].person.name}}">{{rowData['user'].person.name | uppercase}}</td>
+                      <td style="width: 50px;padding-left: 0; padding-right: 0;">
+                        <button pButton type="button" (click)="cancel(rowData)" [disabled]="!hasRemovePermission"
+                          class="p-button-sm p-button-danger" icon="pi pi-trash"></button>
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="8" class="align-left">Nenhum registro encontrado</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

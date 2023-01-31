@@ -1,0 +1,13 @@
+<div>
+  <button pButton type="button" class="p-button p-button-rounded p-button-success" icon="fa fa-fw fa-user-o"
+    (click)="openModal()" [disabled]="isDisabled()"></button>
+
+  <p-dialog header="Adicionar Pessoa" [(visible)]="displayModal" [modal]="true"
+    [style]="{width: '50%', height: '40rem'}" [closeOnEscape]="false"
+    [baseZIndex]="10000" [draggable]="true" [resizable]="true">
+
+    <wbp-person-tab [(personRegister)]="personRegisterCopy"
+      [identification]="true" [contact]="true" [bank]="true" [address]="true" [negativeList]="false"
+      [modal]="true" (onComplete)="closeModal($event)" (cancelModal)="cancelModal()"></wbp-person-tab>
+  </p-dialog>
+</div>

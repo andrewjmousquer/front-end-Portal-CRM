@@ -1,0 +1,86 @@
+<form #contactForm="ngForm" (ngSubmit)="addContact()">
+  <div class="grid">
+    <div class="col-12" [ngClass]="{'lg:col-5' : !horizontal}">
+      <div class="p-fluid grid form-group">
+        <div class="col field" [ngClass]="{'col-12' : !horizontal}">
+          <label for="contactType" class="formTitle">Tipo de contato</label>
+          <p-dropdown [options]="contactTypeList" filter="true" [autoDisplayFirst]="false"
+            [(ngModel)]="componentContact.type" name="contactType" dataKey="id" optionLabel="label"
+            (onChange)="changeContactType()" [showClear]="false" required></p-dropdown>
+        </div>
+        <div class="col field" [ngClass]="{'col-12' : !horizontal}">
+          <label for="contactType" class="capitalize formTitle">
+            <span *ngIf="!componentContact.type.value">Contato</span>
+            <span *ngIf="componentContact.type.value">{{componentContact.type.label}}</span>
+          </label>
+
+          <p-inputMask mask="(99)99999-9999" placeholder="(00)00000-0000" [(ngModel)]="componentContact.value"
+            name="contactValue" *ngIf="isContactMobile" maxlength="14"></p-inputMask>
+
+          <p-inputMask mask="(99)9999-9999" placeholder="(00)0000-0000" [(ngModel)]="componentContact.value"
+            name="contactValue" *ngIf="isContactPhone" maxlength="13"></p-inputMask>
+
+          <input type="text" pInputText [(ngModel)]="componentContact.value" name="contactValue"
+            *ngIf="!isContactMobile && !isContactPhone && !isContactEmail" maxlength="150" />
+
+          <div class="ui-inputgroup" *ngIf="isContactEmail">
+            <input type="email" pInputText placeholder="Email" name="contactValue" [(ngModel)]="componentContact.value"
+              placeholder="exemplo@exemplo.com" email="true" maxlength="150">
+          </div>
+        </div>
+        <div class="col field" [ngClass]="{'col-12' : !horizontal}">
+          <label for="contactType" class="formTitle">Complemento</label>
+          <input id="input" type="text" pInputText [(ngModel)]="componentContact.complement" name="contactComplement"
+            autocomplete="off" maxlength="150" />
+        </div>
+        <div class="col flex-row" [ngClass]="{'p-3 pt-5' : horizontal}">
+          <div class="p-fluid grid pt-2">
+            <button type="submit" [label]="this.isEdit ? 'Salvar' : 'Adicionar'" class="col mr-2" *ngIf="!horizontal"
+              [icon]="this.isEdit ? 'fa fa-save' : 'fa fa-plus'" pButton [disabled]="contactForm.invalid"></button>
+
+            <button type="submit" [label]="this.isEdit ? 'Salvar' : 'Adicionar'" class="p-button-outlined p-button-secondary mr-3 md:w-10rem" *ngIf="horizontal"
+              [icon]="this.isEdit ? 'fa fa-save' : 'fa fa-plus'" pButton [disabled]="contactForm.invalid"></button>
+
+            <button *ngIf="this.isEdit" type="button" icon="fa fa-ban" pButton
+              class="p-button col p-button-light p-button-outlined p-button-icon-max"
+              (click)="resetContactForm()"></button>
+          </div>
+        </div>
+        <div class="col field" *ngIf="!horizontal">
+          <button type="button" label="Novo" icon="fa fa-file-o" pButton class="p-button-outlined"
+            (click)="resetContactForm()"></button>
+        </div>
+      </div>
+    </div>
+    <div class="col-12" [ngClass]="{'lg:col-7 pt-5' : !horizontal}">
+      <p-table [columns]="cols" [value]="componentContactList" dataKey="value" [style]="{'margin-bottom':'20px'}"
+        [responsive]="true" selectionMode="single" [(selection)]="componentContact" (onRowSelect)="editContact($event)"
+        [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true" [resizableColumns]="true">
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th pSortableColumn="type.value">Tipo<p-sortIcon field="type.value"></p-sortIcon></th>
+            <th pSortableColumn="value">Contato<p-sortIcon field="value"></p-sortIcon></th>
+            <th pSortableColumn="complement">Complemento<p-sortIcon field="complement"></p-sortIcon></th>
+            <th class="column-small"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr [pSelectableRow]="rowData">
+            <td *ngFor="let col of columns">
+              {{(rowData[col.field]?.value ? rowData[col.field]?.value : rowData[col.field]) | titlecase}}
+            </td>
+            <td class="justify-content-end column-small">
+              <button pButton type="button" class="p-button p-button-rounded p-button-danger" icon="pi pi-trash"
+                (click)="removeContact(rowData)"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</form>

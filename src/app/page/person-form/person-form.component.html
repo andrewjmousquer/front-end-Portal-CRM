@@ -1,0 +1,78 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="col lg:col-6 mb-4">
+      <div class="card no-margin">
+        <form #personForm="ngForm" (ngSubmit)="loadPerson($event)">
+          <h5>Busca de Pessoa</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field col">
+              <label for="search-person" class="formTitle">Buscar</label>
+              <div class="input-group-clear">
+                <input id="search-person" type="text" pInputText placeholder="Nome da Pessoa"
+                  [(ngModel)]="personSearch.name" name="search" />
+                <a (click)="resetSearchForm()" *ngIf="personSearch.name"><i class="pi pi-times"></i></a>
+              </div>
+            </div>
+            <div class="md:col-3 mt-3 pt-3">
+              <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+            </div>
+          </div>
+          <p-table #dt [columns]="cols" [value]="personList" dataKey="id"
+            [responsive]="true" selectionMode="single" [(selection)]="personRegister"
+            (onRowSelect)="edit($event.data.id)"
+            (onRowUnselect)="resetRegisterForm()"
+            [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [resizableColumns]="true"
+            [scrollable]="true">
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th pSortableColumn="document" style="size: 25%;">Identificador<p-sortIcon field="document"></p-sortIcon></th>
+                <th pSortableColumn="name" style="size: 25%;">Nome<p-sortIcon field="name"></p-sortIcon></th>
+                <th pSortableColumn="emails" style="size: 25%;">Email<p-sortIcon field="emails"></p-sortIcon></th>
+                <th pSortableColumn="phones" style="size: 25%;">Telefone<p-sortIcon field="phones"></p-sortIcon></th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+              <tr [pSelectableRow]="rowData">
+                <td>
+                  <p-badge [value]="rowData.classification.value" severity="info" class="circle-type-person"
+                    *ngIf="rowData.classification.value == personClassifierEnum.physical"></p-badge>
+
+                  <p-badge [value]="rowData.classification.value" severity="danger" class="circle-type-person"
+                    *ngIf="rowData.classification.value == personClassifierEnum.legal"></p-badge>
+
+                  <p-badge value="E" severity="default" class="circle-type-person"
+                    *ngIf="rowData.classification.value == personClassifierEnum.foreign"></p-badge>
+                  {{rowData.document}}
+                </td>
+                <td>
+                  {{rowData.name}}
+                </td>
+                <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{rowData.emails}}">
+                  {{rowData.emails}}
+                </td>
+                <td style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{rowData.phones}}">
+                  {{rowData.phones | phone}}
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="8" style="text-align:left">Sem registros encontrados</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </form>
+      </div>
+    </div>
+    <div class="col lg:col-6">
+      <div class="card no-margin">
+        <h5>Cadastro de Pessoa</h5>
+        <div class="p-fluid">
+          <wbp-person-tab [(personRegister)]="personRegister" [isEdit]="isEdit" [tabViewIndex]="tabViewIndex"
+            [resume]="true" [identification]="true" [contact]="true" [bank]="true" [address]="true" [negativeList]="true" [related]="true"
+            (resetSearchForm)="resetRegisterForm()" (onComplete)="onComplete($event)"></wbp-person-tab>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

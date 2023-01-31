@@ -1,0 +1,16 @@
+.settings-menu {
+    list-style-type: none;
+    margin: 14px 0 0 0;
+    padding: 0;
+    cursor: pointer;
+}
+
+.flag-language{
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+}
+
+.card.card-w-title{
+    height: 100%;
+}

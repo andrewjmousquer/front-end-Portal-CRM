@@ -1,0 +1,274 @@
+<div header="Resumo" #pdfContent class="pdf-content">
+  <div class="col-12 pl-0 pr-0">
+    <table>
+      <tr>
+        <th *ngFor="let col of colHeader" [ngStyle]="{'text-align': col.align}">
+          {{col.header}}
+        </th>
+      </tr>
+      <tr>
+        <td style="text-align: left">{{proposal?.proposal?.cod}}</td>
+        <td style="text-align: center">{{proposal?.proposal?.statusClassification?.label}}</td>
+        <td style="text-align: center">{{proposal?.proposal?.createDate | date:'dd/MM/YYYY' }}</td>
+        <td style="text-align: center">{{proposal?.proposal?.validityDate | date:'dd/MM/YYYY' }}</td>
+        <td style="text-align: center">{{proposal?.proposal?.immediateDelivery ? 'Sim' : 'Não' }}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="col-12">
+    <h5 class="mb-0">Cliente</h5>
+    <hr class="mt-1 mb-1"/>
+
+    <div class="grid">
+      <div class="col">
+        <table>
+          <tr>
+            <th *ngFor="let col of colPerson" [ngStyle]="{'text-align': col.align, 'width': col.width}">
+              {{col.header}}
+            </th>
+          </tr>
+          <tr *ngFor="let rowData of listPerson">
+            <td>{{rowData.person.name}}</td>
+            <td>{{rowData.person.classification.label}}</td>
+            <td>{{getDocumentValue(rowData)}}</td>
+            <td>{{rowData.proposalPersonClassification.label}}</td>
+          </tr>
+        </table>
+
+        <div class="mt-4 mb-2" style="font-weight: 600;">Contatos</div>
+
+        <table>
+          <tr>
+            <th *ngFor="let col of colContact" [ngStyle]="{'text-align': col.align, 'width': col.width}">
+              {{col.header}}
+            </th>
+          </tr>
+          <tr *ngFor="let rowData of listContact">
+            <td *ngFor="let col of colContact" [ngStyle]="{'text-align': col.align}">
+                {{rowData[col.field]}}
+            </td>
+          </tr>
+        </table>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Venda -->
+  <div class="col-12">
+    <h5 class="mb-0">Venda</h5>
+    <hr class="mt-1 mb-1"/>
+
+    <div class="grid">
+      <div class="col">
+        <dl class="details-40 m-0">
+          <dt>Canal:</dt>
+          <dd>{{proposal?.proposal?.proposalDetail?.channel?.name}}</dd>
+
+          <dt>Risco:</dt>
+          <dd>{{proposal?.proposal?.riskClassification?.label}}</dd>
+
+          <dt>Parceiro:</dt>
+          <dd>{{proposal?.proposal?.proposalDetail?.partner?.person?.name}}</dd>
+        </dl>
+      </div>
+      <div class="col">
+        <dl class="details-40 m-0">
+          <dt>Executivo de Conta:</dt>
+          <dd>{{proposal?.proposal.proposalDetail?.seller?.person?.name}}</dd>
+
+          <dt>Venda Interna:</dt>
+          <dd>{{proposal?.proposal?.proposalDetail?.internSale?.person?.name}}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- Veículo -->
+  <div class="col-12">
+    <h5 class="mb-0">Veículo</h5>
+    <hr class="mt-1 mb-1"/>
+
+    <div class="grid">
+      <div class="col">
+        <dl class="details-40 m-0">
+          <dt>Marca:</dt>
+          <dd>{{proposal?.proposal?.proposalDetailVehicle?.vehicle?.model.brand.name}}</dd>
+
+          <dt>Modelo:</dt>
+          <dd>{{proposal?.proposal?.proposalDetailVehicle?.vehicle?.model.name}}</dd>
+
+          <dt>Ano Modelo:</dt>
+          <dd>{{proposal?.proposal?.proposalDetailVehicle?.vehicle?.modelYear}}</dd>
+
+          <dt>Produto:</dt>
+          <dd>{{proposal?.proposal?.proposalDetailVehicle?.priceProduct?.productModel.product?.name}}</dd>
+
+          <dt>Placa:</dt>
+          <dd>{{proposal?.proposal?.proposalDetailVehicle?.vehicle?.plate}}</dd>
+        </dl>
+      </div>
+      <div class="col">
+        <dl class="details-40 m-0">
+          <dt>Chassi:</dt>
+          <dd>{{proposal?.proposal?.proposalDetailVehicle?.vehicle?.chassi}}</dd>
+
+          <dt>Preço Compra:</dt>
+          <dd>{{proposal?.proposal?.proposalDetailVehicle?.vehicle?.purchaseValue | currencyBR}}</dd>
+
+          <dt>Data Compra:</dt>
+          <dd>{{proposal?.proposal?.proposalDetailVehicle?.vehicle?.purchaseDate | date:'dd/MM/YYYY'}}</dd>
+
+          <dt>Entrega Futura:</dt>
+          <dd>{{proposal?.proposal?.proposalDetailVehicle?.vehicle?.plate ? 'Não' : 'Sim'}}</dd>
+
+          <dt>Tabela Preço:</dt>
+          <dd>{{proposal?.proposal?.proposalDetailVehicle?.priceProduct?.priceList.name}}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <!-- Produto -->
+  <div class="col-12">
+    <h5 class="mb-0">Produto</h5>
+    <hr class="mt-1 mb-1"/>
+
+    <div class="grid">
+      <div class="col">
+        <table>
+          <tr>
+            <th *ngFor="let col of colProducts" [ngStyle]="{'text-align': col.align, 'width': col.width}">
+              {{col.header}}
+            </th>
+          </tr>
+          <tr *ngFor="let rowData of listProduct">
+            <td>{{rowData.itemPrice ? rowData.itemPrice?.item?.itemType?.name : rowData.itemPriceModel?.item?.itemType?.name}}</td>
+            <td>{{rowData.itemPrice ? rowData.itemPrice?.item?.cod : rowData.itemPriceModel?.item?.cod }}</td>
+            <td>{{rowData.itemPrice ? rowData.itemPrice?.item?.name : rowData.itemPriceModel?.item?.name}}</td>
+            <td>{{(rowData.itemPrice ? rowData.itemPrice?.price  : rowData.itemPriceModel?.price)  | currency : 'R$'}}</td>
+            <td>{{(rowData.itemPrice ? rowData.itemPrice?.amountDiscount ? rowData.itemPrice?.amountDiscount : 0 :
+                rowData.itemPriceModel?.amountDiscount ? rowData.itemPriceModel?.amountDiscount : 0 )  | currency : 'R$'}}</td>
+            <td>{{rowData.forFree ? 'Sim' : 'Não'}}</td>
+            <td>{{rowData.finalPrice  | currency : 'R$'}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Prazo e Valor Total -->
+  <div class="col-12">
+    <h5 class="mb-0">Prazo e Valor Total</h5>
+    <hr class="mt-1 mb-1"/>
+
+    <div class="grid">
+      <div class="col-6">
+        <dl class="details-70 m-0">
+          <dt>Prazo Padrão:</dt>
+          <dd class="text-right">{{proposal?.proposal?.proposalDetailVehicle?.standardTermDays}}</dd>
+
+          <dt>Prazo Acordado:</dt>
+          <dd class="text-right">{{proposal?.proposal?.proposalDetailVehicle?.agreedTermDays}}</dd>
+
+          <dt>(+) Blindagem:</dt>
+          <dd class="text-right">{{proposal?.proposal?.proposalDetailVehicle?.productFinalPrice | currency : 'R$'}}</dd>
+
+          <dt>(+) Over Parceiro:</dt>
+          <dd class="text-right">{{proposal?.proposal?.proposalDetailVehicle?.overPrice | currency : 'R$'}}</dd>
+
+          <dt>
+            (-) Desconto Parceiro:
+            <br>
+            <span class="font-normal text-600">Com redução do over parceiro</span>
+          </dt>
+          <dd class="text-right">{{proposal?.proposal?.proposalDetailVehicle?.overPricePartnerDiscountAmount | currency : 'R$'}}</dd>
+
+          <dt>
+            (-) Desconto Carbon:
+            <br>
+            <span class="font-normal text-600">Sem redução do over parceiro</span>
+          </dt>
+          <dd class="text-right">{{proposal?.proposal?.proposalDetailVehicle?.priceDiscountAmount | currency : 'R$'}}</dd>
+
+          <dt>Parcelas:</dt>
+          <dd>{{getPaymentPortions()}}</dd>
+
+          <dt>(+) Juro:</dt>
+          <dd class="text-right">{{proposal?.proposal?.proposalDetailVehicle?.totalTaxAmount | currency : 'R$'}}</dd>
+        </dl>
+      </div>
+      <div class="col-12">
+        <div class="text-center block">
+          <div class="border-1 p-2 inline-block">
+            <label class="font-bold">Valor Total: </label>
+            <label>{{proposal?.proposal?.proposalDetailVehicle?.totalAmount | currency : 'R$'}}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--Financeiro -->
+  <div class="col-12">
+    <h5 class="mb-0">Financeiro</h5>
+    <hr class="mt-1 mb-1"/>
+
+    <div class="grid">
+      <div class="col">
+        <table>
+          <tr>
+            <th *ngFor="let col of colFinancials" [ngStyle]="{'text-align': col.align, 'width': col.width}">
+              {{col.header}}
+            </th>
+          </tr>
+          <tr *ngFor="let rowData of listFinancial">
+            <td>{{rowData.payer?.value}}</td>
+            <td>{{rowData.event?.value}}</td>
+            <td>{{rowData.days}}</td>
+            <td>{{rowData.dueDate | date:'dd/MM/YYYY'}}</td>
+            <td>{{rowData.paymentAmount | currency : 'R$'}}</td>
+            <td>{{calculatePaymentPorcent(rowData).toFixed(2)}}</td>
+            <td>{{rowData.paymentMethod?.name}}</td>
+            <td>{{rowData.paymentRule?.installments}}</td>
+            <td>{{rowData.paymentAmount | currency : 'R$'}}</td>
+            <td>{{rowData.interest | currency : 'R$'}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comissão Externa -->
+  <div class="col-12">
+    <h5 class="mb-0">Comissão Externa</h5>
+    <hr class="mt-1 mb-1"/>
+
+    <div class="grid">
+      <div class="col-12 mt-3">
+        <table>
+          <tr>
+            <th *ngFor="let col of colCommissionItems" [ngStyle]="col.style">
+              {{col.header}}
+            </th>
+          </tr>
+          <tr *ngFor="let rowData of listCommission">
+            <td>{{rowData.partnerPerson.personType.label}}</td>
+            <td>{{rowData.partnerPerson.person.name}}</td>
+            <td>{{rowData.value | currency : 'R$'}}</td>
+            <td>{{rowData.dueDate | date:'dd/MM/YYYY' }}</td>
+            <td>{{rowData.commissionType.label}}</td>
+            <td>{{rowData.notes}}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="grid mt-2">
+  <div class="col-12 flex flex-row justify-content-end">
+    <button type="button" label="Gerar PDF" (click)="print()" icon="fa fa-file-pdf-o" pButton class="md:w-15rem"></button>
+  </div>
+</div>

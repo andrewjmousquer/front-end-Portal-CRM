@@ -1,0 +1,55 @@
+<div class="layout-topbar" *ngIf="userObs | async as userObs">
+  <a href="#" class="layout-menu-button" (click)="app.onMenuButtonClick($event)">
+    <img src="assets/layout/images/logo.png" alt="Carbon" class="logo-header">
+  </a>
+
+  <a href="#" class="layout-topbar-user" (click)="app.onTopbarMenuButtonClick($event)">
+    <img src="assets/layout/images/avatar.png" alt="olympia-layout" />
+  </a>
+
+  <ul class="layout-topbar-icons" *ngIf="showConfigMenu"
+    [ngClass]="{'layout-topbar-usermenu-activefadeInDown': app.topbarMenuConfigActive}">
+    <li>
+      <a href="#" class="layout-topbar-icon-yellow" (click)="app.onTopbarMenuButtonClickConfig($event)">
+        <i class="fa fa-cog"></i>
+      </a>
+    </li>
+  </ul>
+  <ul class="layout-topbar-usermenu" [ngClass]="{'layout-topbar-usermenu-active fadeInDown': app.topbarMenuActive}">
+    <li class="layout-topbar-usermenu-header">
+      <img src="assets/layout/images/avatar.png" alt="olympia-layout" />
+      <div class="layout-topbar-usermenu-info">
+        <div class="layout-topbar-usermenu-name">{{user.person?.name}}</div>
+        <div class="layout-topbar-usermenu-role">{{customer?.name}}</div>
+      </div>
+    </li>
+    <li #settings class="li-menu-class">
+      <a (click)="app.showModalDialogAbout()">
+        <i class="fa fa-fw fa-info-circle"></i>
+        <span class="topbar-item-name">Sobre</span>
+      </a>
+    </li>
+    <li #settings class="li-menu-class">
+      <a (click)="app.navigateToRoute('/settings-form')">
+        <i class="fa fa-fw fa-cog"></i>
+        <span class="topbar-item-name">Settings</span>
+      </a>
+    </li>
+    <li #logout (click)="app.logout()" class="li-menu-class">
+      <a href="#">
+        <i class="fa fa-fw fa-sign-out"></i>
+        <span class="topbar-item-name">Logout</span>
+      </a>
+    </li>
+  </ul>
+
+  <ul class="layout-topbar-usermenu"
+    [ngClass]="{'layout-topbar-usermenu-active fadeInDown': app.topbarMenuConfigActive}">
+    <li *ngFor="let item of menuList" class="li-menu-class">
+      <a (click)="[app.navigateToRoute(item.route)];" *ngIf="item.type.value == 'PORTAL_CONFIG'">
+        <i class="{{item.icon}}"></i>
+        <span class="topbar-item-name">{{item.name}}</span>
+      </a>
+    </li>
+  </ul>
+</div>

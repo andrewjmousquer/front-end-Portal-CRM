@@ -1,0 +1,10 @@
+.modal-large .p-dialog-draggable {
+  max-width: 90%;
+  width: 1400px;
+}
+
+.modal-medium .p-dialog-draggable {
+  max-width: 90%;
+  width: 900px;
+}
+

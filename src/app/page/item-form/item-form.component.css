@@ -1,0 +1,26 @@
+body {
+    font-family: Helvetica;
+}
+
+input[type=file] {
+    display: none;
+}
+
+.item-image{
+    width: 300px;
+    height: 300px;
+    border: 1px solid #ced4da;
+    border-radius: 3px;
+    margin-top: 10px;
+    padding: 5px;
+}
+
+.item-image-div {
+    max-width: 290px;
+    max-height: 290px;
+}
+
+.remove-image {
+    width: 300px; 
+    text-align: right;
+}

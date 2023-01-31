@@ -1,0 +1,240 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="col-12 lg:col-4">
+      <div class="card no-margin">
+        <form #productSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Produto</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field col">
+              <label for="Identification" class="formTitle">Buscar</label>
+              <div class="input-group-clear">
+                <input id="input" type="text" pInputText placeholder="Nome do Produto" [(ngModel)]="productSearch.name"
+                  name="search" />
+                <a (click)="resetSearchForm()" *ngIf="productSearch.name"><i class="pi pi-times"></i></a>
+              </div>
+            </div>
+            <div class="md:col-3 mt-3 pt-3">
+              <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+            </div>
+          </div>
+          <div class="md:col-12">
+            <p-table #dt [columns]="cols" [value]="productList" dataKey="id" [style]="{'margin-bottom':'20px'}"
+              [responsive]="true" selectionMode="single" [(selection)]="productRegister" (onRowSelect)="edit($event)"
+              (onRowUnselect)="resetRegisterForm()" [rows]="10" [showCurrentPageReport]="false" [paginator]="true"
+              [scrollable]="true" [resizableColumns]="true">
+              <ng-template pTemplate="header" let-columns>
+                <tr>
+                  <th pSortableColumn="name">Nome<p-sortIcon field="name"></p-sortIcon>
+                  </th>
+                  <th style="max-width: 120px" pSortableColumn="active">Situação<p-sortIcon field="active"></p-sortIcon>
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr [pSelectableRow]="rowData">
+                  <td>
+                    {{rowData.name}}
+                  </td>
+                  <td style="max-width: 120px;">
+                    {{rowData.active == true ? 'Ativo' : 'Inativo'}}
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col-12 lg:col-8">
+      <div class="card no-margin">
+        <form #productRegisterForm="ngForm" (ngSubmit)="save()" novalidate>
+          <h5>Cadastro de Produto</h5>
+          <div class="p-fluid p-formgrid">
+            <p-tabView class="p-tabview-px-0">
+              <p-tabPanel header="Produto">
+                <div class="grid">
+                  <div class="md:col-5 field">
+                    <label for="name" class="formTitle">Produto <span class="text-danger">*</span></label>
+                    <input id="name" type="text" pInputText [(ngModel)]="productRegister.name" name="registerName"
+                      autocomplete="off" required />
+                  </div>
+                  <div class="md:col-4 field">
+                    <label for="proposalExpirationDays" class="formTitle">Validade da Proposta <span
+                        class="text-danger">*</span></label>
+                    <div class="p-inputgroup">
+                      <input id="proposalExpirationDays" type="number" pInputText min="0" max="999" maxlength="3"
+                        [(ngModel)]="productRegister.proposalExpirationDays" name="proposalExpirationDays"
+                        autocomplete="off" required />
+                      <span class="p-inputgroup-addon">Dias</span>
+                    </div>
+                  </div>
+                  <div class="md:col-3 field">
+                    <label for="status" class="formTitle">Situação <span class="text-danger">*</span></label>
+                    <p-dropdown id="status" [options]="statusList" [(ngModel)]="selectedStatus" name="status"
+                      optionLabel="name" [showClear]="false" required>
+                    </p-dropdown>
+                  </div>
+                </div>
+              </p-tabPanel>
+            </p-tabView>
+            <p-tabView class="p-tabview-px-0">
+              <p-tabPanel header="Modelo">
+                <div class="p-fluid form-group">
+                  <div class="grid">
+                    <div class="col field">
+                      <label for="productModelBrand" class="formTitle">Marca <span class="text-danger">*</span></label>
+                      <p-dropdown id="productModelBrand" filter="true" (onChange)="loadModelList()" dataKey="id"
+                        [options]="brandList" [(ngModel)]="selectedProductModelBrand" name="productModelBrand"
+                        optionLabel="name" [showClear]="false" [autoDisplayFirst]="false"></p-dropdown>
+                    </div>
+
+                    <div class="col field">
+                      <label for="productModel" class="formTitle">Modelo <span class="text-danger">*</span></label>
+                      <p-dropdown id="productModel" filter="true" [options]="modelList" dataKey="id"
+                        [(ngModel)]="productModelRegister.model" [autoDisplayFirst]="false" name="productModel"
+                        optionLabel="name" [showClear]="false"></p-dropdown>
+                    </div>
+
+                    <div class="col field">
+                      <label for="hasProject" class="formTitle">Projeto </label>
+                      <div class="field-input-switch">
+                        <p-inputSwitch [(ngModel)]="productModelRegister.hasProject" name="hasProject"
+                          class="input-switch-component"></p-inputSwitch>
+                      </div>
+                    </div>
+
+                    <div class="col field">
+                      <label for="manufactureDays" class="formTitle">Prazo de Fabricação <span
+                          class="text-danger">*</span></label>
+                      <div class="p-inputgroup">
+                        <p-inputNumber mode="decimal" id="manufactureDays" max="999" maxlength="3"
+                          [(ngModel)]="productModelRegister.manufactureDays" name="manufactureDays" autocomplete="off">
+                        </p-inputNumber>
+                        <span class="p-inputgroup-addon">Dias</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="grid">
+                    <div class="field col col-3">
+                      <label for="fromto" class="formTitle">Ano Modelo Período <span
+                          class="text-danger">*</span></label>
+                      <p-dropdown id="fromto" [options]="fromToList" [(ngModel)]="selectedFromTop"
+                        (onChange)="resetSelectedFromTop()" name="fromto" [autoDisplayFirst]="false" optionLabel="value"
+                        [showClear]="false">
+                      </p-dropdown>
+                    </div>
+
+                    <div class="col-3">
+                      <div class="grid">
+                        <div class="field col"
+                          *ngIf="selectedFromTop.type == fromToEnum.FROM || selectedFromTop.type == fromToEnum.FROMTO ">
+                          <label for="modelYearStart" class="formTitle">De<span class="text-danger">*</span></label>
+                          <p-inputNumber id="modelYearStart" [useGrouping]="false" min="1900" max="2200" maxlength="4"
+                            [(ngModel)]="productModelRegister.modelYearStart" name="modelYearStart" autocomplete="off">
+                          </p-inputNumber>
+                        </div>
+
+                        <div class="field col"
+                          *ngIf="selectedFromTop.type == fromToEnum.TO || selectedFromTop.type == fromToEnum.FROMTO">
+                          <label for="modelYearEnd" class="formTitle">Até<span class="text-danger">*</span></label>
+                          <p-inputNumber id="modelYearEnd" [useGrouping]="false" min="1900" max="2200" maxlength="4"
+                            [(ngModel)]="productModelRegister.modelYearEnd" name="modelYearEnd" autocomplete="off">
+                          </p-inputNumber>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 flex flex-row justify-content-end py-0">
+                      <button type="button" label="Cancelar" icon="fa fa-ban"
+                        class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="isEditModel" pButton
+                        (click)="resetRegisterModelForm()"></button>
+                      <button type="button" [label]="isEditModel ? 'Salvar' : 'Adicionar'"
+                        [icon]="isEditModel ? 'fa fa-save' : 'fa fa-plus'" pButton
+                        class="p-button-outlined p-button-secondary md:w-10rem" (click)="saveModel()"></button>
+                    </div>
+                  </div>
+                  <p-table #dtmodel [columns]="colsModel" [value]="productRegister.models" dataKey="id"
+                    styleClass="my-5" [responsive]="true" selectionMode="single" [rows]="10"
+                    [(selection)]="productModelRegister" (onRowSelect)="editModel($event)"
+                    (onRowUnselect)="resetRegisterModelForm()" [rows]="10" [showCurrentPageReport]="false"
+                    [paginator]="true" [scrollable]="true" [resizableColumns]="true">
+                    <ng-template pTemplate="header" let-columns>
+                      <tr>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}">
+                          {{col.header}}
+                          <p-sortIcon [field]="col.field"></p-sortIcon>
+                          <p-columnFilter *ngIf="col.filterEnabled" [type]="col.filterType ? col.filterType : 'text'"
+                            [field]="col.search" display="menu">
+                          </p-columnFilter>
+                        </th>
+                        <th class="trashModel">
+                          <p></p>
+                        </th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-columns="columns">
+                      <tr [pSelectableRow]="rowData">
+                        <td class="text-center">
+                          {{rowData.model.brand.name}}
+                        </td>
+                        <td>
+                          {{rowData.model.name}}
+                        </td>
+                        <td>
+                          {{rowData.hasProject == true ? 'Sim' : 'Não'}}
+                        </td>
+                        <td>
+                          {{rowData.manufactureDays}} Dias
+                        </td>
+                        <td>
+                          {{rowData.modelYearText}}
+                        </td>
+                        <td class="justify-content-end trashModel">
+                          <button pButton type="button" class="p-button p-button-rounded p-button-danger"
+                            icon="pi pi-trash" (click)="removeModel(rowData)"></button>
+                        </td>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                      <tr>
+                        <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </p-tabPanel>
+              <p-tabPanel header="Descrição Produto">
+                <div class="p-fluid form-group">
+                  <div class="grid">
+                    <div class="md:col-12 field">
+                      <label for="descProduto" class="formTitle">Descrição do produto</label>
+                      <textarea id="descProduto" [rows]="5" [cols]="30" pInputTextarea
+                        [(ngModel)]="productRegister.productDescription" name="productDescription"></textarea>
+                    </div>
+                  </div>
+                </div>
+              </p-tabPanel>
+            </p-tabView>
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="button" label="Cancelar" icon="fa fa-ban"
+                class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="productRegister.id" pButton
+                (click)="resetRegisterForm()"></button>
+              <button type="button" label="Excluir" icon="fa fa-trash-o"
+                class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="productRegister.id" pButton
+                (click)="remove(productRegister)"></button>
+              <button type="button" label="Novo" icon="fa fa-file-o" pButton
+                class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm()"></button>
+              <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"
+                [disabled]="productRegisterForm.invalid"></button>
+            </div>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>

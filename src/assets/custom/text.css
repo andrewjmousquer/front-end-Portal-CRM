@@ -1,0 +1,92 @@
+.text-danger {
+  color: #D32F2F;
+}
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+dl.details-70,
+dl.details-40,
+dl.details-center {
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  margin: 0
+}
+
+dl.details-70 dt,
+dl.details-70 dd,
+dl.details-40 dt,
+dl.details-40 dd,
+dl.details-center dt,
+dl.details-center dd {
+  font-size: 0.9rem;
+  padding: 5px;
+  margin: 0;
+  min-height: 1.8rem;
+}
+
+dl.details-center dt,
+dl.details-center dd {
+  width: 50%;
+}
+
+dl.details-70 dt {
+  width: 70%;
+}
+
+dl.details-70 dd {
+  width: 30%;
+}
+
+dl.details-40 dt {
+  width: 40%;
+}
+
+dl.details-40 dd {
+  width: 60%;
+}
+
+dl.details-70 dt,
+dl.details-40 dt,
+dl.details-center dt {
+  float: left;
+  text-align: right;
+  font-weight: bold;
+}
+
+dl.details-70 dd,
+dl.details-40 dd,
+dl.details-center dd {
+  float: left;
+}
+
+.grid-text * {
+  font-size: 0.9rem;
+}
+
+.formTitle {
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.formTitle2 {
+  font-family: "Lato", sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.trashModel {
+  max-width: 70px;
+}
+
+.p-inputtext,
+.p-dropdown,
+.p-dropdown-items,
+.p-picklist-item,
+.p-selectable-row,
+.p-datatable-tbody tr td {
+  text-transform: uppercase;
+}

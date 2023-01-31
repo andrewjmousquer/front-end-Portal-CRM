@@ -1,0 +1,598 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="md:col-6 mb-3">
+      <div class="card no-margin">
+        <form #qualificationSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Qualificação</h5>
+          <div class="p-fluid grid form-group" [style]="{'margin-bottom':'24.8vw'}">
+            <div class="md:col-3 field pt-5">
+              <!--<p-tag styleClass="mr-2" severity="success" value="Success" [rounded]="true"></p-tag>
+                <p-tag styleClass="mr-2" severity="info" value="Info" [rounded]="true"></p-tag>
+                <p-tag severity="danger" value="Danger" [rounded]="true"></p-tag>-->
+              <p-chip styleClass="ml-2 mt-2 custom-chip">Pendente</p-chip>
+            </div>
+
+            <div class="md:col-3 field">
+              <label for="registerAccessList">Status</label>
+              <p-dropdown filter="true" [autoDisplayFirst]="false" name="registerAccessList" dataKey="id"
+                optionLabel="name" [showClear]="true" required></p-dropdown>
+            </div>
+
+            <div class="md:col-3 field">
+              <label for="registerAccessList">Parceiro</label>
+              <p-dropdown filter="true" [autoDisplayFirst]="false" name="registerAccessList" dataKey="id"
+                optionLabel="name" [showClear]="true" required></p-dropdown>
+            </div>
+            <div class="md:col-3 field">
+              <label for="registerAccessList">N° da Proposta</label>
+              <p-dropdown filter="true" [autoDisplayFirst]="false" name="registerAccessList" dataKey="id"
+                optionLabel="name" [showClear]="true" required></p-dropdown>
+            </div>
+
+            <div class="md:col-12">
+              <p-fieldset legend="Filtro" [toggleable]="true" [collapsed]="true" [transitionOptions]="'250ms'">
+                <div class="grid form-group">
+                  <div class="md:col-3 field">
+                    <label for="registerAccessList">N° do Pedido/OS</label>
+                    <input id="input" type="text" pInputText>
+                  </div>
+                  <div class="md:col-3 field">
+                    <label for="registerAccessList">Nome ou Identificador</label>
+                    <input id="input" type="text" pInputText>
+                  </div>
+                  <div class="md:col-3 field">
+                    <label for="registerAccessList">Executivo de Conta</label>
+                    <input id="input" type="text" pInputText>
+                  </div>
+                  <div class="md:col-3 field">
+                    <label for="registerAccessList">Parceiro</label>
+                    <p-dropdown filter="true" [autoDisplayFirst]="false" name="registerAccessList" dataKey="id"
+                      optionLabel="name" [showClear]="true" required></p-dropdown>
+                  </div>
+
+                  <div class="md:col-3">
+                    <label for="registerAccessList">Marca</label>
+                    <p-dropdown filter="true" [autoDisplayFirst]="false" name="registerAccessList" dataKey="id"
+                      optionLabel="name" [showClear]="true" required></p-dropdown>
+                  </div>
+                  <div class="md:col-3">
+                    <label for="registerAccessList">Modelo</label>
+                    <p-dropdown filter="true" [autoDisplayFirst]="false" name="registerAccessList" dataKey="id"
+                      optionLabel="name" [showClear]="true" required></p-dropdown>
+                  </div>
+                  <div class="md:col-3">
+                    <label for="registerAccessList">Grupo Parceiro</label>
+                    <p-dropdown filter="true" [autoDisplayFirst]="false" name="registerAccessList" dataKey="id"
+                      optionLabel="name" [showClear]="true" required></p-dropdown>
+                  </div>
+                  <div class="md:col-3">
+                    <label>Pronta Entrega</label>
+                    <div class="field-input-switch">
+                      <p-inputSwitch></p-inputSwitch>
+                    </div>
+                  </div>
+
+                  <div class="md:col-3">
+                    <label for="registerAccessList">Tipo Data</label>
+                    <p-dropdown filter="true" [autoDisplayFirst]="false" name="registerAccessList" dataKey="id"
+                      optionLabel="name" [showClear]="true" required></p-dropdown>
+                  </div>
+                  <div class="md:col-3">
+                    <label for="registerAccessList">Data Início</label>
+                    <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy"
+                      yearRange="2015:2030" name="startDate">
+                    </p-calendar>
+                  </div>
+                  <div class="md:col-3">
+                    <label for="registerAccessList">Data Fim</label>
+                    <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy"
+                      yearRange="2015:2030" name="endDate">
+                    </p-calendar>
+                  </div>
+                </div>
+              </p-fieldset>
+            </div>
+
+            <div class="md:col-8">
+            </div>
+
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="submit" label="Limpar" class="p-button-outlined md:w-10rem" pButton></button>
+              <button type="submit" label="Buscar" icon=""
+                class="p-element p-button-outlined p-button-secondary ml-4 md:w-10rem p-button p-component"
+                pButton></button>
+            </div>
+
+            <div class="md:col-12">
+              <p-table #dt [columns]="cols" [value]="qualificationList" dataKey="id" [responsive]="true"
+                selectionMode="single" [(selection)]="qualificationRegister" [rows]="10" [showCurrentPageReport]="false"
+                [paginator]="true" [scrollable]="true" [resizableColumns]="true">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr [pSelectableRow]="rowData">
+                    <td *ngFor="let col of columns">
+                      {{rowData[col.field]?.value ? rowData[col.field]?.value : (rowData[col.field]?.name ?
+                        rowData[col.field]?.name : rowData[col.field]) }}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col-5">
+      <div class="card no-margin" [style]="{'height':'100%'}">
+        <form #qualificationRegisterForm="ngForm" novalidate>
+          <h5>Cadastro de Qualificação</h5>
+          <div class="grid form-group" [style]="{'margin-bottom':'8vw'}">
+            <div class="md:col-12">
+              <p-table #dt [columns]="colsPerson" [value]="qualificationList" dataKey="id" [responsive]="true"
+                selectionMode="single" [(selection)]="qualificationRegister" [paginator]="true" [rows]="10"
+                [showCurrentPageReport]="false" [scrollable]="true" [resizableColumns]="true">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </th>
+                    <!--<th style="width: 10vw;"></th>-->
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr [pSelectableRow]="rowData">
+                    <td *ngFor="let col of columns">
+                      {{rowData[col.field]?.value ? rowData[col.field]?.value : (rowData[col.field]?.name ?
+                        rowData[col.field]?.name : rowData[col.field]) }}
+                    </td>
+                    <td style="width: 10vw; text-align: center;">
+                      <button pButton type="button" class="p-button p-button-rounded p-button-danger" icon="pi pi-trash"
+                        (click)="remove(rowData)"></button>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+              <p-tabView>
+                <p-tabPanel header="Resumo">
+                  <div class="grid form-group">
+                    <div class="md:col-12">
+                      <div class="mt-4">
+                        <strong>Identificação</strong>
+                        <hr class="my-1" />
+
+                        <div class="md:col-12">
+                          <dl class="m-0">
+                            <dt class="title" class="title"><strong>Nome:</strong></dt>
+                            <dd class="title ml-2">name</dd>
+                          </dl>
+                        </div>
+                        <div class="md:col-12">
+                          <dl class="m-0">
+                            <dt class="title"><strong>Tipo:</strong></dt>
+                            <dd class="title ml-2">type</dd>
+                          </dl>
+                        </div>
+
+                        <div class="md:col-12">
+                          <dl class="m-0">
+                            <dt class="title"><strong>CPF:</strong></dt>
+                            <dd class="title ml-2">cpf</dd>
+                          </dl>
+                        </div>
+                      </div>
+
+                      <div class="mt-4">
+                        <strong>Contato</strong>
+                        <hr class="my-1" />
+                        <div class="md:col-12">
+                          <dl class="m-0">
+                            <dt class="title"><strong>Email:</strong></dt>
+                            <dd class="title ml-2">email</dd>
+                          </dl>
+                        </div>
+
+                        <div class="md:col-12">
+                          <dl class="m-0">
+                            <dt class="title"><strong>Telefone:</strong></dt>
+                            <dd class="title ml-2">phone</dd>
+                          </dl>
+                        </div>
+
+                        <div class="md:col-12">
+                          <dl class="m-0">
+                            <dt class="title"><strong>Telefone:</strong></dt>
+                            <dd class="title ml-2">phone2</dd>
+                          </dl>
+                        </div>
+                      </div>
+
+                      <div class="mt-4">
+                        <strong>Dados Bancários</strong>
+                        <hr class="my-1" />
+                      </div>
+
+                      <div class="mt-4">
+                        <strong>Endereço</strong>
+                        <hr class="my-1" />
+                        <div class="grid">
+                          <div class="md:col-12">
+                            <dl class="m-0">
+                              <dt class="title"><strong>Endereço:</strong></dt>
+                              <dd class="title ml-2">address</dd>
+                            </dl>
+                          </div>
+                          <div class="md:col-8">
+                            <dl class="m-0">
+                              <dt class="title"><strong>Complemento:</strong></dt>
+                              <dd class="title ml-2">comple</dd>
+                            </dl>
+                          </div>
+                          <div class="md:col-4">
+                            <dl class="m-0">
+                              <dt class="title"><strong>CEP:</strong></dt>
+                              <dd class="title ml-2">cep</dd>
+                            </dl>
+                          </div>
+                          <div class="md:col-4">
+                            <dl class="m-0">
+                              <dt class="title"><strong>Cidade:</strong></dt>
+                              <dd class="title ml-2">cidade</dd>
+                            </dl>
+                          </div>
+                          <div class="md:col-4">
+                            <dl class="m-0">
+                              <dt class="title"><strong>Estado:</strong></dt>
+                              <dd class="title ml-2">estado</dd>
+                            </dl>
+                          </div>
+                          <div class="md:col-4">
+                            <dl class="m-0">
+                              <dt class="title"><strong>País:</strong></dt>
+                              <dd class="title ml-2">país</dd>
+                            </dl>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </p-tabPanel>
+                <p-tabPanel header="Qualificação">
+                  <div class="grid form-group">
+                    <div class="md:col-8">
+                    </div>
+                    <div class="ui-g-1 md:col-4">
+                      <div class="col-12 flex flex-row justify-content-end py-0">
+                        <button type="button" (click)="showModalDialog()" icon="pi pi-plus"
+                          class="p-button-outlined md:w-10rem" label="Adicionar" pButton></button>
+                      </div>
+                      <p-dialog header="Editar Pessoa" [(visible)]="displayModal" [modal]="true"
+                        [style]="{width: '50%', height: '65%'}" [baseZIndex]="10000" [draggable]="false"
+                        [resizable]="false">
+                        <p-tabView>
+                          <p-tabPanel header="Identificação">
+                            <div class="p-fluid grid form-group mt-auto">
+                              <div class="md:col-12 mt-auto">
+                                <label for="registerAccessList"><strong>Tipo</strong></label>
+                              </div>
+                              <div class="md:col-2">
+                                <p-radioButton name="group1" value="Option 2" label="Física" inputId="opt1">
+                                </p-radioButton>
+                              </div>
+
+                              <div class="md:col-2 mt-4">
+                                <p-radioButton name="group1" value="Option 2" label="Jurídica" inputId="opt2">
+                                </p-radioButton>
+                              </div>
+
+                              <div class="md:col-2 mt-4">
+                                <p-radioButton name="group1" value="Option 3" label="Estrangeiro" inputId="opt3">
+                                </p-radioButton>
+                              </div>
+
+                              <div class="md:col-6">
+                                <label for="registerAccessList"><strong>CNPJ</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+
+                              <div class="md:col-6">
+                                <label for="registerAccessList"><strong>Nome</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+
+                              <div class="md:col-6">
+                                <label for="registerAccessList"><strong>Inscrição Estadual</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+                            </div>
+                          </p-tabPanel>
+
+                          <p-tabPanel header="Contato" style="margin-bottom: 30%;">
+                            <form #contactForm="ngForm" (ngSubmit)="addContact()">
+                              <div class="p-fluid grid form-group">
+                                <div class="md:col-5">
+                                  <label for="registerAccessList"><strong>Tipo <span
+                                        class="text-danger">*</span></strong></label>
+                                  <span>
+                                    <p-dropdown [options]="contactTypeList" filter="true" [autoDisplayFirst]="false"
+                                      [(ngModel)]="componentContact.type" name="contactType" dataKey="id"
+                                      optionLabel="value" (onChange)="changeContactType()" [showClear]="true" required>
+                                    </p-dropdown>
+                                  </span>
+                                </div>
+
+                                <div class="md:col-5">
+                                  <label for="registerAccessList"><strong>Contato <span
+                                        class="text-danger">*</span></strong></label>
+                                  <span class="ui-float-label">
+                                    <p-inputMask mask="(99)99999-9999" placeholder="(00)00000-0000"
+                                      [(ngModel)]="componentContact.value" name="contactValue" required
+                                      *ngIf="isContactMobile" maxlength="14"></p-inputMask>
+                                    <p-inputMask mask="(99)9999-9999" placeholder="(00)0000-0000"
+                                      [(ngModel)]="componentContact.value" name="contactValue" required
+                                      *ngIf="isContactPhone" maxlength="13"></p-inputMask>
+                                    <input type="text" pInputText [(ngModel)]="componentContact.value"
+                                      name="contactValue" required
+                                      *ngIf="!isContactMobile && !isContactPhone && !isContactEmail" maxlength="150" />
+                                    <div class="ui-inputgroup" *ngIf="isContactEmail">
+                                      <span class="ui-inputgroup-addon">@</span>
+                                      <input type="text" pInputText placeholder="Email" name="contactValue"
+                                        style="border-left:0" [(ngModel)]="componentContact.value"
+                                        placeholder="exemplo@exemplo.com" required maxlength="150">
+                                    </div>
+                                  </span>
+                                </div>
+
+                                <div class="md:col-2 mt-auto">
+                                  <button type="submit" icon="pi pi-plus" label="Adicionar" pButton
+                                    [disabled]="contactForm.invalid"></button>
+                                </div>
+
+                                <div class="md:col-12">
+                                  <p-table [columns]="colsContact" [value]="componentContactList" dataKey="value"
+                                    [responsive]="true" selectionMode="single" [(selection)]="componentContact"
+                                    (onRowSelect)="editContact($event)" [rows]="10" [paginator]="true"
+                                    [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true" [resizableColumns]="true">
+                                    <ng-template pTemplate="header" let-columns>
+                                      <tr>
+                                        <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                          {{col.header}}
+                                          <p-sortIcon [field]="col.field"></p-sortIcon>
+                                        </th>
+                                        <th style="width: 25vw;"></th>
+                                      </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="body" let-rowData let-columns="columns">
+                                      <tr [pSelectableRow]="rowData">
+                                        <td *ngFor="let col of columns">
+                                          {{rowData[col.field]?.value ? rowData[col.field]?.value : rowData[col.field]
+                                            }}
+                                        </td>
+                                        <td style="width: 65vw; text-align: center;">
+                                          <button pButton type="button"
+                                            class="p-button p-button-rounded p-button-danger" icon="pi pi-trash"
+                                            (click)="removeContact(rowData)"></button>
+                                        </td>
+                                      </tr>
+                                    </ng-template>
+                                    <ng-template pTemplate="emptymessage">
+                                      <tr>
+                                        <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                                      </tr>
+                                    </ng-template>
+                                  </p-table>
+                                </div>
+                              </div>
+                            </form>
+                          </p-tabPanel>
+
+                          <p-tabPanel header="Dados Bancários">
+                            <div class="p-fluid grid form-group">
+                              <div class="md:col-2">
+                                <label for="registerAccessList"><strong>Banco</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+
+                              <div class="md:col-2">
+                                <label for="registerAccessList"><strong>Agência</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+
+                              <div class="md:col-3">
+                                <label for="registerAccessList"><strong>Conta</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+
+                              <div class="md:col-3">
+                                <label for="registerAccessList"><strong>Tipo de Conta <span
+                                      class="text-danger">*</span></strong></label>
+                                <span>
+                                  <p-dropdown filter="true" [autoDisplayFirst]="false" name="registerAccessList"
+                                    dataKey="id" optionLabel="name" [showClear]="true" required></p-dropdown>
+                                </span>
+                              </div>
+
+                              <div class="md:col-2 mt-auto">
+                                <button type="submit" icon="pi pi-plus" label="Adicionar" pButton></button>
+                              </div>
+
+                              <div class="md:col-12">
+                                <p-table #dt [columns]="colsBank" [value]="qualificationList" dataKey="id"
+                                  [responsive]="true" selectionMode="single" [(selection)]="qualificationRegister"
+                                  [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true" [resizableColumns]="true">
+                                  <ng-template pTemplate="header" let-columns>
+                                    <tr>
+                                      <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                                        {{col.header}}
+                                        <p-sortIcon [field]="col.field"></p-sortIcon>
+                                      </th>
+                                      <!--<th style="width: 10vw;"></th>-->
+                                    </tr>
+                                  </ng-template>
+                                  <ng-template pTemplate="body" let-rowData let-columns="columns">
+                                    <tr [pSelectableRow]="rowData">
+                                      <td *ngFor="let col of columns">
+                                        {{rowData[col.field]?.value ? rowData[col.field]?.value :
+                                          (rowData[col.field]?.name ?
+                                          rowData[col.field]?.name : rowData[col.field]) }}
+                                      </td>
+                                      <td style="width: 10vw; text-align: center;">
+                                        <button pButton type="button" class="p-button p-button-rounded p-button-danger"
+                                          icon="pi pi-trash" (click)="remove(rowData)"></button>
+                                      </td>
+                                    </tr>
+                                  </ng-template>
+                                  <ng-template pTemplate="emptymessage">
+                                    <tr>
+                                      <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                                    </tr>
+                                  </ng-template>
+                                </p-table>
+                              </div>
+                            </div>
+                          </p-tabPanel>
+
+                          <p-tabPanel header="Endereço">
+                            <div class="p-fluid grid form-group">
+                              <div class="md:col-4">
+                                <label for="registerAccessList"><strong>CEP</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+
+                              <div class="md:col-4">
+                                <label for="registerAccessList"><strong>Endereço</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+
+                              <div class="md:col-4">
+                                <label for="registerAccessList"><strong>Complemento</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+
+                              <div class="md:col-4">
+                                <label for="registerAccessList"><strong>Cidade</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+
+                              <div class="md:col-4">
+                                <label for="registerAccessList"><strong>Estado</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+
+                              <div class="md:col-4">
+                                <label for="registerAccessList"><strong>País</strong></label>
+                                <span>
+                                  <input id="input" type="text" size="30" pInputText>
+                                </span>
+                              </div>
+                            </div>
+                          </p-tabPanel>
+                        </p-tabView>
+                        <div class="grid">
+                          <div class="md:col-12">
+                          </div>
+                          <div class="col-12 flex flex-row justify-content-end py-0">
+                            <button type="submit" label="Cancelar" (click)="displayModal=false"
+                              class="p-button-outlined md:w-10rem" pButton></button>
+                            <button type="submit" label="Adicionar" pButton class="ml-4 md:w-10rem"></button>
+                          </div>
+                        </div>
+                      </p-dialog>
+                    </div>
+                  </div>
+
+                  <div class="grid form-group">
+                    <div class="md:col-12">
+                      <p-table #dt [columns]="colsQuali" [value]="qualificationList" dataKey="id"
+                        [style]="{'margin-bottom':'20vw'}" [responsive]="true" selectionMode="single"
+                        [(selection)]="qualificationRegister" [rows]="10" [showCurrentPageReport]="false"
+                        [paginator]="true" [scrollable]="false" [resizableColumns]="true">
+                        <ng-template pTemplate="header" let-columns>
+                          <tr>
+                            <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                              {{col.header}}
+                              <p-sortIcon [field]="col.field"></p-sortIcon>
+                            </th>
+                            <!--<th style="width: 10vw;"></th>-->
+                          </tr>
+                        </ng-template>
+                        <ng-template pTemplate="body" let-rowData let-columns="columns">
+                          <tr [pSelectableRow]="rowData">
+                            <td *ngFor="let col of columns">
+                              {{rowData[col.field]?.value ? rowData[col.field]?.value : (rowData[col.field]?.name ?
+                                rowData[col.field]?.name : rowData[col.field]) }}
+                            </td>
+                            <td style="width: 10vw; text-align: center;">
+                              <button pButton type="button" class="p-button p-button-rounded p-button-danger"
+                                icon="pi pi-trash" (click)="remove(rowData)"></button>
+                            </td>
+                          </tr>
+                        </ng-template>
+                        <ng-template pTemplate="emptymessage">
+                          <tr>
+                            <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+                    </div>
+                  </div>
+                </p-tabPanel>
+              </p-tabView>
+            </div>
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="button" label="Cancelar" icon="fa fa-ban"
+                class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="qualificationRegister.id" pButton
+                (click)="resetRegisterForm()"></button>
+              <button type="button" label="Excluir" icon="fa fa-trash-o"
+                class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="qualificationRegister.id" pButton
+                (click)="remove(qualificationRegister)"></button>
+              <button type="button" label="Novo" icon="fa fa-file-o" pButton
+                class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm()"></button>
+              <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"
+                [disabled]="qualificationRegisterForm.invalid"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

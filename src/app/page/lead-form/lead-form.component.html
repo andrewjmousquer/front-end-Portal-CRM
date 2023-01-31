@@ -1,0 +1,272 @@
+<div class="ui-flui">
+  <div class="grid">
+    <div class="col-6">
+      <div class="card no-margin" [style]="{'height':'100%'}">
+        <form #leadSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Lead</h5>
+          <div class="p-fluid grid form-group">
+            <div class="md:col-3 field" >
+              <label for="searchText"><strong>Nome, Email ou Telefone</strong></label>
+              <div class="input-group-clear">
+                <input id="input" type="text" size="30" pInputText [(ngModel)]="leadSearchFilter.searchText" name="searchText">
+                <a (click)="resetSearchForm()" *ngIf="leadSearchFilter.searchText"><i class="pi pi-times"></i></a>
+              </div>
+            </div>
+            <div class="md:col-3 field">
+              <label for="searchStatus"><strong>Status</strong></label>
+              <p-dropdown [options]="statusList" filter="true" [autoDisplayFirst]="false" [(ngModel)]="leadSearchFilter.status"
+                name="searchStatus" dataKey="id" optionLabel="label" [showClear]="true" (onChange)="clearDropDown($event)">
+              </p-dropdown>
+            </div>
+            <div class="md:col-3 field">
+              <label for="searchSource"><strong>Origem</strong></label>
+              <p-dropdown [options]="sourceList" filter="true" [autoDisplayFirst]="false" [(ngModel)]="leadSearchFilter.source"
+                name="searchSource" dataKey="id" optionDisabled="false" optionLabel="name" [showClear]="true" (onChange)="clearDropDown($event)">
+              </p-dropdown>
+            </div>
+            <div class="md:col-3 field pt-5 mt-2">
+              <h6><strong>Leads Encontrados: </strong> {{leadList.length}}</h6>
+            </div>
+            <div class="md:col-3 field">
+              <label for="searchBrand"><strong>Marca</strong></label>
+              <p-dropdown [options]="brandList" filter="true" [autoDisplayFirst]="false" [(ngModel)]="brandSearch" name="brandSearch" [showClear]="true"
+              (onChange)="changeBrandSearch(brandSearch, modelListSearch)" name="searchBrand" dataKey="id" optionDisabled="false" optionLabel="name"
+              (onChange)="clearDropDown($event)">
+              </p-dropdown>
+            </div>
+            <div class="md:col-3 field">
+              <label for="searchModel"><strong>Modelo</strong></label>
+              <p-dropdown [options]="modelListSearch" filter="true" [autoDisplayFirst]="false" [(ngModel)]="leadSearchFilter.model"
+                name="searchModel" dataKey="id" optionDisabled="false" optionLabel="name" [showClear]="true" (onChange)="clearDropDown($event)">
+              </p-dropdown>
+            </div>
+            <div class="md:col-3 field">
+              <label for="searchDescription"><strong>Detalhamento</strong></label>
+              <div class="input-group-clear">
+                <input id="input" type="text" size="30" pInputText [(ngModel)]="leadSearchFilter.description" name="searchDescription">
+                <a (click)="resetSearchForm()" *ngIf="leadSearchFilter.description"><i class="pi pi-times"></i></a>
+              </div>
+            </div>
+            <div class="col-3 flex-row mt-3 pt-3 justify-content-center">
+              <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+            </div>
+          </div>
+          <div class="md:col-12">
+            <p-table #dt [columns]="cols" [value]="leadList" dataKey="id" [style]="{'margin-bottom':'20vw'}"
+              [responsive]="true" selectionMode="single" [(selection)]="leadRegister" (onRowSelect)="edit($event)"
+              (onRowUnselect)="resetRegisterForm()" [rows]="10" [showCurrentPageReport]="false" [paginator]="true"
+              [scrollable]="true" [resizableColumns]="true">
+              <ng-template pTemplate="header" let-columns>
+                <tr>
+                  <th *ngFor="let col of columns" [pSortableColumn]="col.field" style="width: 6.5vw;">
+                    {{col.header}}
+                    <p-sortIcon [field]="col.field"></p-sortIcon>
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr [pSelectableRow]="rowData">
+                  <td style=" text-align: center;">
+                    {{rowData.status.label}}
+                  </td>
+                  <td style=" text-align: center;">
+                    {{rowData.name}}
+                  </td>
+                  <td style=" text-align: center;">
+                    {{rowData.createDate | date: 'dd/MM/yyyy'}}
+                  </td>
+
+                  <td style=" text-align: center;">
+                    {{rowData.model.brand.name}}
+                  </td>
+                  <td style=" text-align: center;">
+                    {{rowData.model.name}}
+                  </td>
+                  <td style=" text-align: center;">
+                    {{rowData.phone}}
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="8" style="text-align:left">Sem registros encontrados</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- FORMULÁRIO -->
+    <div class="col-6">
+      <div class="card no-margin" [style]="{'height':'100%'}">
+          <h5>Cadastro de Lead</h5>
+          <div class="grid form-group">
+            <div class="md:col-12">
+              <p-tabView>
+                <p-tabPanel header="Cadastro">
+                  <form #leadRegisterForm="ngForm" (ngSubmit)="save()" novalidate>
+                    <div class="p-fluid grid form-group">
+                      <div class="md:col-6 field">
+                        <label for="name" class="formTitle">Nome <span class="text-danger">*</span></label>
+                        <input id="name" type="text" size="30" pInputText name="name" [(ngModel)]="leadRegister.name" required>
+                      </div>
+                      <div class="md:col-6 field">
+                        <label for="startDate" class="formTitle">Data <span class="text-danger">*</span></label>
+                        <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" [(ngModel)]="leadRegister.createDate"
+                          placeholder="00/00/0000" dateFormat="dd/mm/yy" yearRange="2015:2030" name="startDate" required>
+                        </p-calendar>
+                      </div>
+                      <div class="md:col-6 field">
+                        <label for="email" class="formTitle">Email de Contato <span class="text-danger">*</span></label>
+                        <input placeholder="example@example.com" name="email" pInputText placeholder="Email"
+                        [(ngModel)]="leadRegister.email" required placeholder="exemplo@exemplo.com" required maxlength="150"
+                        type="email" size="30" pInputText email="true">
+                      </div>
+                      <div class="md:col-6 field">
+                        <label for="phone" class="formTitle">Celular <span class="text-danger">*</span></label>
+                        <p-inputMask mask="(99)99999-9999" placeholder="(00)00000-0000" name="phone" size="30" [(ngModel)]="leadRegister.phone" required></p-inputMask>
+                      </div>
+                      <div class="md:col-6 field">
+                        <label for="seller" class="formTitle">Executivo de Conta <span class="text-danger">*</span></label>
+                        <p-dropdown [options]="sellerList" filter="true" [autoDisplayFirst]="false" [(ngModel)]="leadRegister.seller"
+                          name="seller" dataKey="id" optionLabel="person.name" [showClear]="true" required></p-dropdown>
+                      </div>
+                      <div class="md:col-6 field">
+                        <label for="source" class="formTitle">Origem <span class="text-danger">*</span></label>
+                        <p-dropdown [options]="sourceList" filter="true" [autoDisplayFirst]="false" [(ngModel)]="leadRegister.source"
+                          name="source" dataKey="id" optionLabel="name" [showClear]="true" required></p-dropdown>
+                      </div>
+                      <div class="md:col-6 field">
+                        <label for="status" class="formTitle">Status <span class="text-danger">*</span></label>
+                        <p-dropdown [options]="statusList" filter="true" [autoDisplayFirst]="false" [(ngModel)]="leadRegister.status"
+                          name="status" dataKey="id" optionLabel="label" [showClear]="true" required></p-dropdown>
+                      </div>
+                      <div class="md:col-6 field">
+                        <label for="probability" class="formTitle">Probabilidade de Venda <span class="text-danger">*</span></label>
+                        <p-dropdown [options]="probabilityList" filter="true" [autoDisplayFirst]="false" [(ngModel)]="leadRegister.saleProbability"
+                          name="probability" dataKey="id" optionLabel="label" [showClear]="true" required></p-dropdown>
+                      </div>
+                      <div class="md:col-6 field">
+                        <label for="brand" class="formTitle">Marca <span class="text-danger">*</span></label>
+                        <p-dropdown [options]="brandList" filter="true" [(ngModel)]="brandRegister" [autoDisplayFirst]="false"
+                          name="brand" dataKey="id" optionDisabled="false" optionLabel="name"
+                          (onChange)="changeBrand(brandRegister, modelList)" [showClear]="false" required></p-dropdown>
+                      </div>
+                      <div class="md:col-6 field">
+                        <label for="model" class="formTitle">Modelo <span class="text-danger">*</span></label>
+                        <p-dropdown [options]="modelList" filter="true"  [(ngModel)]="leadRegister.model"
+                          [autoDisplayFirst]="false" name="model" dataKey="id" optionDisabled="false"
+                          optionLabel="name" [showClear]="false" required></p-dropdown>
+                      </div>
+                      <div class="md:col-12 field">
+                        <label for="subject" class="formTitle">Assunto</label>
+                        <input id="input" type="text" size="30" pInputText name="subject" [(ngModel)]="leadRegister.subject">
+                      </div>
+                      <div class="md:col-12 field">
+                        <label for="description" class="formTitle">Detalhamento</label>
+                        <textarea rows="5" cols="30" name="description" pInputTextarea autoResize="autoResize" [(ngModel)]="leadRegister.description"></textarea>
+                      </div>
+                      <div class="col-12 flex flex-row justify-content-end py-0">
+                        <button type="button" label="Cancelar" icon="fa fa-ban"
+                          class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="leadRegister.id" pButton
+                          (click)="resetRegisterForm()"></button>
+                        <button type="button" label="Excluir" icon="fa fa-trash-o"
+                          class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="leadRegister.id" pButton
+                          (click)="remove(leadRegister)"></button>
+                        <button type="button" label="Novo" icon="fa fa-file-o" pButton *ngIf="!isEdit"
+                          class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm()"></button>
+                        <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"
+                          [disabled]="leadRegisterForm.invalid"></button>
+                      </div>
+                    </div>
+                  </form>
+                </p-tabPanel>
+
+                <!--Follow Up -->
+                <p-tabPanel header="Follow Up" *ngIf="isEdit">
+                  <form #fupRegisterForm="ngForm" (ngSubmit)="saveFup()" novalidate>
+                    <div class="grid form-group">
+                      <div class="md:col-12">
+                        <p-table #dt [columns]="fupCols" [value]="fupList" dataKey="id" [style]="{'margin-bottom':'10%'}"
+                          [responsive]="true" selectionMode="single" [(selection)]="fupRegister" [rows]="10"
+                          (onRowSelect)="editFup($event)" (onRowUnselect)="resetFupRegisterForm()"
+                          [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true">
+                          <ng-template pTemplate="header">
+                            <tr>
+                              <th pSortableColumn="media.value" [ngStyle]="{'width': '50px'}">Ação<p-sortIcon field="media.value"></p-sortIcon></th>
+                              <th pSortableColumn="date" style="width:100px">Data<p-sortIcon field="date"></p-sortIcon></th>
+                              <th pSortableColumn="person" style=" text-align: center; width: 30%;">Pessoa Contactada<p-sortIcon field="person"></p-sortIcon></th>
+                              <th pSortableColumn="comment" style=" text-align: center; width: 40%;">Detalhamento<p-sortIcon field="comment"></p-sortIcon></th>
+                            </tr>
+                          </ng-template>
+                          <ng-template pTemplate="body" let-rowData let-columns="columns">
+                            <tr [pSelectableRow]="rowData">
+                              <td style="width:100px">
+                                {{rowData.media.value}}
+                              </td>
+                              <td style="width: 15%;">
+                                {{rowData.date | date: 'dd/MM/yyyy'}}
+                              </td>
+                              <td style="width: 30%;">
+                                {{rowData.person}}
+                              </td>
+                              <td style="width: 40%;">
+                                {{rowData.comment}}
+                              </td>
+                            </tr>
+                          </ng-template>
+                          <ng-template pTemplate="emptymessage">
+                            <tr>
+                              <td colspan="8" style="text-align:left">Sem registros encontrados</td>
+                            </tr>
+                          </ng-template>
+                        </p-table>
+                      </div>
+                    </div>
+
+                    <div class="p-fluid grid form-group" [style]="{'margin-bottom':'10%'}">
+                      <div class="md:col-6 field">
+                        <label for="date" class="formTitle"><strong>Data <span class="text-danger">*</span></strong></label>
+                        <p-calendar [monthNavigator]="true" placeholder="00/00/0000" [yearNavigator]="true" [(ngModel)]="fupRegister.date"
+                          [showIcon]="true" dateFormat="dd/mm/yy" yearRange="2015:2030" name="date" required>
+                        </p-calendar>
+                      </div>
+                      <div class="md:col-6 field">
+                        <label for="media" class="formTitle"><strong>Meio de Contato <span class="text-danger">*</span></strong></label>
+                        <p-dropdown [options]="mediaList" filter="true" [(ngModel)]="fupRegister.media" [autoDisplayFirst]="false"
+                          name="media" dataKey="id" optionLabel="label" [showClear]="true" required></p-dropdown>
+                      </div>
+                      <div class="md:col-12 field">
+                        <label for="person" class="formTitle"><strong>Pessoa Contactada <span class="text-danger">*</span></strong></label>
+                          <input id="input" type="text" size="150" pInputText [(ngModel)]="fupRegister.person" name="person" required>
+                      </div>
+                      <div class="md:col-12 field">
+                        <label for="comment" class="formTitle"><strong>Detalhamento</strong></label>
+                        <textarea rows="5" cols="30" [(ngModel)]="fupRegister.comment" name="comment" pInputTextarea autoResize="autoResize" maxlength="255"></textarea>
+                      </div>
+                    </div>
+
+                    <div class="col-12 flex flex-row justify-content-end py-0">
+                      <button type="button" label="Cancelar" icon="fa fa-ban"
+                        class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="fupRegister.id" pButton
+                        (click)="resetFupRegisterForm()"></button>
+                      <button type="button" label="Excluir" icon="fa fa-trash-o"
+                        class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="fupRegister.id" pButton
+                        (click)="removeFup(fupRegister)"></button>
+                      <button type="button" label="Novo" icon="fa fa-file-o" pButton *ngIf="!isFupEdit"
+                        class="p-button-outlined p-button-secondary mr-3 md:w-10rem"
+                        (click)="resetFupRegisterForm()"></button>
+                      <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"
+                        [disabled]="fupRegisterForm.invalid"></button>
+                    </div>
+                  </form>
+                </p-tabPanel>
+              </p-tabView>
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+</div>

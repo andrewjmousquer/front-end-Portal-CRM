@@ -1,0 +1,201 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="col-12 lg:col-5">
+      <div class="card no-margin">
+        <form #userSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Usuário</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field col">
+              <label for="Identification" class="formTitle">Buscar</label>
+              <div class="input-group-clear">
+                <input id="input" type="text" pInputText placeholder="Nome do Usuário" [(ngModel)]="userSearch.username"
+                  name="search" />
+                <a (click)="resetSearchForm()" *ngIf="userSearch.username"><i class="pi pi-times"></i></a>
+              </div>
+            </div>
+            <div class="md:col-3 mt-3 pt-3">
+              <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+            </div>
+            <div class="col-12 md:col-12">
+              <p-table #dt [columns]="cols" [value]="userList" dataKey="id" [style]="{'margin-bottom':'20px'}"
+                [responsive]="true" selectionMode="single" [(selection)]="userRegister" (onRowSelect)="edit($event)"
+                (onRowUnselect)="resetRegisterForm()" [resizableColumns]="true"
+                [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th pSortableColumn="username">Nome de Usuário<p-sortIcon field="username"></p-sortIcon></th>
+                    <th pSortableColumn="person.name">Nome<p-sortIcon field="person.name"></p-sortIcon></th>
+                    <th pSortableColumn="accessList.name">Lista de Acesso<p-sortIcon field="accessList.name"></p-sortIcon></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr [pSelectableRow]="rowData">
+                    <td>
+                      {{rowData.username}}
+                    </td>
+                    <td>
+                      {{rowData.person.name}}
+                    </td>
+                    <td>
+                      {{rowData.accessList.name}}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col-12 lg:col-7">
+      <div class="card no-margin">
+        <form #userRegisterForm="ngForm" (ngSubmit)="save()">
+          <h5>Cadastro de Usuário</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field md:col-4">
+              <label for="personClassificationType" class="formTitle">
+                Tipo de Pessoa
+                <span class="text-danger">*</span>
+              </label>
+              <p-dropdown id="personClassificationType" filter="true" [options]="personClassificationList" [autoDisplayFirst]="true"
+                [(ngModel)]="userRegister.person.classification" name="personClassificationType" dataKey="id" optionLabel="label" [showClear]="false">
+              </p-dropdown>
+            </div>
+            <div class="field col-4">
+              <label for="cpf" class="formTitle">
+                {{userRegister.person.classification ? personDocumentEnum[userRegister.person.classification.value] : 'Documento'}}
+                <span class="text-danger">*</span>
+              </label>
+              <div class="flex">
+                <p-inputMask *ngIf="userRegister.person.classification.value == personClassifierEnum.physical" [mask]="maskEnum.CPF"
+                  (onBlur)="loadPerson()" [(ngModel)]="userRegister.person.cpf" name="cpf" maxlength="18" class="w-full"
+                  required>
+                </p-inputMask>
+
+                <p-inputMask *ngIf="userRegister.person.classification.value == personClassifierEnum.legal" [mask]="maskEnum.CNPJ"
+                  (onBlur)="loadPerson()" [(ngModel)]="userRegister.person.cnpj" name="cnpj" maxlength="18" class="w-full"
+                  required>
+                </p-inputMask>
+
+                <input *ngIf="userRegister.person.classification.value == personClassifierEnum.foreign" name="rne" id="rne" type="text"
+                  pInputText (blur)="loadPerson()" [(ngModel)]="userRegister.person.rne" autocomplete="off" maxlength="45"
+                  required />
+
+                <wbp-person-modal [(personRegister)]="userRegister.person"
+                  (onComplete)="onCompletePerson($event)" class="ml-2"></wbp-person-modal>
+              </div>
+            </div>
+            <div class="field col-4">
+              <label for="name" class="formTitle" *ngIf="userRegister.person.classification.value != personClassifierEnum.legal">
+                  Nome <span class="text-danger">*</span></label>
+              <label for="name" class="formTitle" *ngIf="userRegister.person.classification.value == personClassifierEnum.legal">
+                  Nome Fantasia<span class="text-danger">*</span></label>
+              <input name="name" id="name" type="text" pInputText [(ngModel)]="userRegister.person.name"
+                autocomplete="off" required />
+           </div>
+           <div class="col-12 md:col-4 field">
+              <label for="float-input" class="formTitle" >Username <span class="text-danger">*</span></label>
+              <input type="text" pInputText [(ngModel)]="userRegister.username" name="registerUsername" required autocomplete="off" />
+            </div>
+            <div class="field col-4">
+              <label for="email" class="formTitle" >Email<span class="text-danger">*</span></label>
+              <input type="email" pInputText placeholder="Email" name="email" [(ngModel)]="email" placeholder="" email="true" maxlength="150" required>
+            </div>
+            <div class="field col-4">
+              <label for="registerJobTitle" class="formTitle" >Cargo <span class="text-danger">*</span></label>
+              <input type="text" pInputText [(ngModel)]="userRegister.person.jobTitle" id="registerJobTitle" name="registerJobTitle" required
+                autocomplete="off" />
+            </div>
+          </div>
+          <div class="p-fluid grid form-group">
+            <div class="col-12 md:col-2 field">
+              <label for="float-input" class="formTitle" >Senha</label>
+              <input type="password" pPassword [(ngModel)]="userRegister.password" name="registerPassword"
+                autocomplete="off" />
+            </div>
+            <div class="col-12 md:col-2 field">
+              <label for="float-input" class="formTitle" >Repetir senha</label>
+              <input type="password" pPassword [(ngModel)]="userRegister.confirmPassword" name="registerConfirmPassword"
+                autocomplete="off" value="" />
+            </div>
+            <div class="col-12 md:col-2 field">
+              <label for="registerEnabled" class="formTitle" >Ativo</label>
+              <div class="field-input-switch">
+                <p-inputSwitch [(ngModel)]="userRegister.enabled" name="registerEnabled" class="input-switch-component">
+                </p-inputSwitch>
+              </div>
+            </div>
+            <div class="col-12 md:col-2 field">
+              <label for="registerBlocked" class="formTitle" >Bloqueado</label>
+              <div class="field-input-switch">
+                <p-inputSwitch [(ngModel)]="userRegister.blocked" name="registerBlocked" class="input-switch-component">
+                </p-inputSwitch>
+              </div>
+            </div>
+            <div class="col-12 md:col-2 field">
+              <label for="registerChangePass" class="formTitle" >Alterar senha</label>
+              <div class="field-input-switch">
+                <p-inputSwitch [(ngModel)]="userRegister.changePass" name="registerChangePass"
+                  class="input-switch-component"></p-inputSwitch>
+              </div>
+            </div>
+            <div class="col-12 md:col-2 field">
+              <label for="registerExpirePass" class="formTitle">Expirar senha</label>
+              <div class="field-input-switch">
+                <p-inputSwitch [(ngModel)]="userRegister.expirePass" name="registerExpirePass"
+                  class="input-switch-component"></p-inputSwitch>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="session-content">Complementos</h6>
+          <div class="p-fluid grid form-group">
+            <div class="col-12 md:col-6 field">
+              <label for="registerAccessList" class="formTitle" >Lista de acesso <span class="text-danger">*</span></label>
+              <p-dropdown [options]="accessListList" filter="true" [autoDisplayFirst]="false"
+                [(ngModel)]="userRegister.accessList" name="registerAccessList" dataKey="id" optionLabel="name"
+                [showClear]="false" [required]="true"></p-dropdown>
+            </div>
+            <div class="col-12 md:col-6 field">
+              <label for="registerUserType" class="formTitle" >Tipo de Usuário <span class="text-danger">*</span></label>
+              <p-dropdown [options]="userTypeList" filter="true" [autoDisplayFirst]="false"
+                [(ngModel)]="userRegister.userType" name="registerUserType" dataKey="id" optionLabel="value"
+                [showClear]="false" [required]="true"></p-dropdown>
+            </div>
+          </div>
+
+          <h6 class="session-content">Clientes</h6>
+          <div class="p-fluid grid form-group">
+            <div class="col-12 md:col-12">
+              <p-pickList [source]="customerAvailableList" [target]="customerSelectedList" [responsive]="true"
+                [showSourceControls]="false" [showTargetControls]="false">
+                <ng-template let-customer pTemplate="item">
+                  <div class="ui-helper-clearfix">
+                    {{customer.name}}
+                  </div>
+                </ng-template>
+              </p-pickList>
+            </div>
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="button" label="Cancelar" icon="fa fa-ban"
+                class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="userRegister.id" pButton
+                (click)="resetRegisterForm()"></button>
+              <button type="button" label="Excluir" icon="fa fa-trash-o"
+                class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="userRegister.id" pButton
+                (click)="remove(userRegister)"></button>
+              <button type="button" label="Novo" icon="fa fa-file-o" pButton
+                class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm()"></button>
+              <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"
+                [disabled]="userRegisterForm.invalid"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

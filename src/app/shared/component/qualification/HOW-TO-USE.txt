@@ -1,0 +1,75 @@
+
+
+/*
+ * qualifications: [OBRIGATÓRIO]
+ * lista de person qualifications.
+ * para que o compoenente detecte as mudanças na lista é necessário do PARENT para o COMPONENTE, aconselho a utilizar o async + promise
+ *
+ * disabled: [OPCIONAL]
+ * flag que desabilita a edição da lista, passar true ou false
+ */
+
+
+
+
+Exemplo:
+
+exemplo.html
+
+<wbp-qualification [qualifications]="$fakeQualificationsPromise | async" [disabled]="fakeDisabled"></wbp-qualification>
+
+exemplo.component.js
+
+@Component({
+  ...
+})
+
+export class ExemploComponent implements OnInit {
+
+    ... 
+
+    fakeQualifications: PersonQualification[] = [];
+    fakeDisabled: boolean = false;
+    $fakeQualificationsPromise: Promise<PersonQualification[]>;
+
+    ngOnInit(): void {
+        let q = new Qualification();
+        q.id = 10;
+        q.name = "a";
+        q.seq = 1;
+        q.parentId = 4;
+        q.required = false;
+        q.active = true;
+        q.breadcrumbNamePath = "D,a";
+
+        let pq = new PersonQualification();
+        pq.comments = "FAKE COMMENT";
+        pq.qualification = q;
+
+        this.fakeQualifications.push( pq );
+        this.$fakeQualificationsPromise = Promise.resolve(this.fakeQualifications);
+    }
+
+    testeAddItem() {
+        let q = new Qualification();
+        q.id = 16;
+        q.name = "C1";
+        q.seq = 1;
+        q.parentId = 15;
+        q.required = false;
+        q.active = true;
+        q.breadcrumbNamePath = "C,C1";
+    
+        let pq = new PersonQualification();
+        pq.comments = "A";
+        pq.qualification = q;
+    
+        this.fakeQualifications.push( pq );
+        this.$fakeQualificationsPromise = Promise.resolve(this.fakeQualifications);
+    }
+
+    testeRemoveItem() {
+        this.fakeQualifications.splice(0,1);
+        this.$fakeQualificationsPromise = Promise.resolve(this.fakeQualifications);
+    }
+}

@@ -1,0 +1,23 @@
+<div class="layout-wrapper" [ngClass]="{'layout-horizontal': menuMode === 'horizontal',
+    'layout-overlay': menuMode === 'overlay',
+    'layout-static': menuMode === 'static',
+    'layout-slim': menuMode === 'slim',
+    'layout-menu-light': lightMenu === true,
+    'layout-menu-dark': lightMenu === false,
+    'layout-overlay-active': overlayMenuActive,
+    'layout-mobile-active': staticMenuMobileActive,
+    'layout-static-inactive': staticMenuDesktopInactive}" [class]="topbarColor" (click)="onLayoutClick()">
+  <wbp-header></wbp-header>
+  <wbp-menu></wbp-menu>
+  <div class="layout-main">
+    <div class="layout-content">
+      <p-toast key="tst"></p-toast>
+      <ngx-spinner></ngx-spinner>
+      <p-confirmDialog #cd header="Confirmação" icon="pi pi-exclamation-triangle" appendTo="body"></p-confirmDialog>
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  <div class="layout-footer justify-content-center">
+    <wbp-footer></wbp-footer>
+  </div>
+</div>

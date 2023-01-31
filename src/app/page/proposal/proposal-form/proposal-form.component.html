@@ -1,0 +1,129 @@
+<div class="card no-margin">
+  <form #registerForm="ngForm" novalidate (ngSubmit)="save()">
+
+    <!-- header números -->
+    <wbp-proposal-header [(register)]="register"></wbp-proposal-header>
+
+    <!-- tabs -->
+    <p-tabView class="p-tabview-px-0" [(activeIndex)]="tabViewIndex" (onChange)="tabViewIndex = $event.index">
+      <p-tabPanel header="Cliente">
+        <wbp-proposal-customer [(proposal)]="register.proposal" (updateRegister)="register.proposal=$event"
+          [channelList]="channelList" [riskList]="riskList"></wbp-proposal-customer>
+      </p-tabPanel>
+
+      <p-tabPanel header="Parceiro/Blindagem">
+        <wbp-proposal-partner [(proposal)]="register.proposal" (updateRegister)="register.proposal=$event"
+          [channelList]="channelList" [riskList]="riskList"></wbp-proposal-partner>
+      </p-tabPanel>
+
+      <p-tabPanel header="Comissão Externa">
+        <wbp-proposal-external-comission [(proposal)]="register.proposal" (updateRegister)="register.proposal=$event">
+        </wbp-proposal-external-comission>
+      </p-tabPanel>
+
+      <p-tabPanel header="Follow Up" *ngIf="register.proposal.id">
+        <wbp-proposal-follow-up [(proposal)]="register.proposal" (updateRegister)="register.proposal=$event">
+        </wbp-proposal-follow-up>
+      </p-tabPanel>
+
+      <p-tabPanel header="Documentos">
+        <wbp-proposal-documents [(proposal)]="register.proposal" (updateRegister)="register.proposal=$event">
+        </wbp-proposal-documents>
+      </p-tabPanel>
+
+      <p-tabPanel header="Resumo">
+        <wbp-proposal-resume [(proposal)]="register.proposal"></wbp-proposal-resume>
+      </p-tabPanel>
+    </p-tabView>
+
+    <div class="grid mt-4">
+      <div class="col-12 flex flex-row justify-content-end py-0">
+        <!-- Sair -->
+        <button type="button" label="Sair" icon="fa fa-ban" class="p-button-outlined p-button-light mr-3 md:w-12rem"
+          pButton (click)="router.navigate(['/proposal-search/'])"></button>
+
+        <!-- Salvar Nova Versão 
+        <button type="button" label="Salvar Nova Versão" icon="fa fa-copy" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-14rem" *ngIf="register.proposal.id != null
+            && (proposalStatusEnum.finishedWithoutSale != register.proposal.status
+            && proposalStatusEnum.finishedWithSale != register.proposal.status)"></button>
+        -->
+        <!-- Aprovação Comercial -->
+        <button type="button" label="Aprovação Comercial" icon="fa fa-check" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-14rem"
+          (click)="saveUpdateState(proposalStatusEnum.inCommercialApproval, 'Aprovação Comercial')"
+          *ngIf="proposalStatusEnum.inProgress == register.proposal.status"></button>
+
+        <!-- Aprovado Comercial -->
+        <button type="button" label="Aprovado Comercial" icon="fa fa-check" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-14rem"
+          (click)="saveUpdateState(proposalStatusEnum.commercialApproved, 'Aprovado Comercial')"
+          *ngIf="proposalStatusEnum.inCommercialApproval == register.proposal.status"></button>
+
+        <!-- Reprovado Comercial -->
+        <button type="button" label="Reprovado Comercial" icon="fa fa-times" pButton
+          class="p-button-outlined p-button-danger mr-3 md:w-14rem"
+          (click)="saveUpdateState(proposalStatusEnum.commercialDisapproved, 'Reprovado Comercial')"
+          *ngIf="proposalStatusEnum.inCommercialApproval == register.proposal.status"></button>
+
+        <!-- Para Aprovação Cliente -->
+        <button type="button" label="Aprovação Cliente" icon="fa fa-check" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-16rem"
+          (click)="saveUpdateState(proposalStatusEnum.onCustomerApproval, ' Aprovação do Cliente')"
+          *ngIf="proposalStatusEnum.commercialApproved == register.proposal.status || proposalStatusEnum.inProgress == register.proposal.status"></button>
+
+        <!-- Aprovado Cliente -->
+        <button type="button" label="Aprovado Cliente" icon="fa fa-check" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-14rem"
+          (click)="saveUpdateState(proposalStatusEnum.finishedWithSale, 'Aprovado Cliente')"
+          *ngIf="proposalStatusEnum.onCustomerApproval == register.proposal.status"></button>
+
+        <!-- Renegociação -->
+        <button type="button" label="Renegociação" icon="fa fa-check" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-14rem"
+          (click)="saveUpdateState(proposalStatusEnum.inProgress, 'Em andamento')"
+          *ngIf="proposalStatusEnum.onCustomerApproval == register.proposal.status"></button>
+
+        <!-- Reprovado Cliente -->
+        <button type="button" label="Reprovado Cliente" icon="fa fa-times" pButton
+          class="p-button-outlined p-button-danger mr-3 md:w-14rem"
+          (click)="saveUpdateState(proposalStatusEnum.finishedWithoutSale, 'Reprovado Cliente')"
+          *ngIf="proposalStatusEnum.onCustomerApproval == register.proposal.status"></button>
+
+        <!-- Pedido Liberado -->
+        <button type="button" label="Pedido Liberado" icon="fa fa-check" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-14rem"
+          (click)="saveUpdateSaleOrderStatus('APPROVED_BACKOFFICE', 'Pedido Liberado Backoffice')"
+          *ngIf="register.proposal.salesOrder?.orderNumber !== null && (register.proposal.salesOrder?.statusClassification?.value === 'VALIDATION_BACKOFFICE')"></button>
+
+        <!-- Pedido Reprovado -->
+        <button type="button" label="Pedido Reprovado" icon="fa fa-check" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-14rem"
+          (click)="saveUpdateSaleOrderStatus('DISAPPROVED_BACKOFFICE', 'Reprovado BackOffice')"
+          *ngIf="register.proposal.salesOrder?.orderNumber !== null && (register.proposal.salesOrder?.statusClassification?.value === 'VALIDATION_BACKOFFICE')"></button>
+
+        <!-- Proposta Reprovada
+        <button type="button" label="Proposta Reprovada" icon="fa fa-check" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-14rem"
+          (click)="saveUpdateSaleOrderStatus(proposalStatusEnum.inProgress, 'Em andamento')"
+          *ngIf="register.proposal.salesOrder?.orderNumber !== null && register.proposal.salesOrder?.statusClassification?.value == 'VALIDATION_BACKOFFICE'"></button> -->
+
+        <!-- Envia Validação Backoffice -->
+        <button type="button" label="Envia Validação Backoffice" icon="fa fa-check" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-14rem"
+          (click)="saveUpdateSaleOrderStatus('VALIDATION_BACKOFFICE', 'Em Validação BackOffice')"
+          *ngIf="register.proposal.salesOrder?.orderNumber !== null && (register.proposal.salesOrder?.statusClassification?.value === 'DISAPPROVED_BACKOFFICE')"></button>
+
+        <!-- Pedido Finalizado -->
+        <button type="button" label="Pedido Finalizado" icon="fa fa-check" pButton
+          class="p-button-outlined p-button-secondary mr-3 md:w-14rem"
+          (click)="saveUpdateSaleOrderStatus('FINALIZED ORDER', 'Pedido Finalizado')"
+          *ngIf="register.proposal.salesOrder?.orderNumber !== null && (register.proposal.salesOrder?.statusClassification?.value === 'APPROVED_BACKOFFICE')"></button>
+
+
+        <!-- Salvar -->
+        <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-14rem"></button>
+      </div>
+    </div>
+  </form>
+</div>

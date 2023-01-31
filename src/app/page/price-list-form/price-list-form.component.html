@@ -1,0 +1,560 @@
+<div class="ui-fluid">
+  <div class="grid">
+
+    <!-- COMPONENTE DE BUSCA -->
+    <div class="md:col-4">
+      <div class="card no-margin">
+        <form #priceListSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Tabela de Preço</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field col">
+              <label for="fld-search" class="formTitle">Buscar</label>
+              <div class="input-group-clear">
+                <input id="fld-search" type="text" pInputText placeholder="Tabela de Preço"
+                  [(ngModel)]="priceListSearch.name" name="search" />
+                <a (click)="resetSearchForm()" *ngIf="priceListSearch.name"><i class="pi pi-times"></i></a>
+              </div>
+            </div>
+            <div class="md:col-3 mt-3 pt-3">
+              <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+            </div>
+            <div class="md:col-12">
+              <p-table [columns]="searchCols" [value]="priceListSearchResult" dataKey="priceList.id"
+                [style]="{'margin-bottom':'20px'}" [responsive]="true" [rows]="50" selectionMode="single"
+                [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true" [(selection)]="priceListSelected"
+                (onRowSelect)="edit($event)" [resizableColumns]="true">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}">
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr [pSelectableRow]="rowData">
+                    <td>
+                      {{rowData.priceList.name}}
+                    </td>
+                    <td>
+                      {{rowData.priceList.channel.name}}
+                    </td>
+                    <td>
+                      {{rowData.priceList.start | date:'dd/MM/YYYY' }}
+                    </td>
+                    <td>
+                      {{rowData.priceList.end | date:'dd/MM/YYYY' }}
+                    </td>
+                    <td>
+                      {{ (rowData.priceList.allPartners ? 'Todos' : rowData.qtdPartners) }}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="5" class="text-center">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- FORMULÁRIO -->
+    <div class="md:col-8">
+      <div class="card no-margin">
+        <form #priceListForm="ngForm" (ngSubmit)="save()" novalidate>
+          <h5>Cadastro Tabela de Preço</h5>
+          <div class="p-fluid p-formgrid">
+            <div class="grid">
+              <div class="md:col-3 field">
+                <label for="prlName" class="formTitle">Nome<span class="text-danger">*</span></label>
+                <input id="prlName" name="prlName" type="text" pInputText
+                  [(ngModel)]="priceListFormModel.priceList.name" autocomplete="off" required />
+              </div>
+              <div class="md:col-3 field">
+                <label for="prlChannel" class="formTitle">Canal<span class="text-danger">*</span></label>
+                <p-dropdown id="prlChannel" name="prlChannel" [options]="channelList" [autoDisplayFirst]="false"
+                  [(ngModel)]="priceListFormModel.priceList.channel" (onChange)="changeChannel()" [disabled]="editMode"
+                  dataKey="id" required>
+                  <ng-template pTemplate="selectedItem">
+                    <div *ngIf="priceListFormModel.priceList.channel">
+                      <div>{{priceListFormModel.priceList.channel.name}}</div>
+                    </div>
+                  </ng-template>
+                  <ng-template let-item pTemplate="item">
+                    <div>{{item.name}} <small>( Tem Parceiro: {{ ( item.hasPartner ? 'Sim' : 'Não' ) }} )</small> </div>
+                  </ng-template>
+                </p-dropdown>
+              </div>
+              <div class="md:col-3 field">
+                <label for="prlStart" class="formTitle">Data de Início<span class="text-danger">*</span></label>
+                <p-calendar id="prlStart" name="prlStart" [(ngModel)]="priceListFormModel.priceList.start"
+                  [showButtonBar]="true" [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true"
+                  yearRange="2000:2100" [required]="true" [maxDate]="priceListFormModel.priceList.end" required>
+                </p-calendar>
+              </div>
+              <div class="md:col-3 field">
+                <label for="prlEnd" class="formTitle">Data de Fim<span class="text-danger">*</span></label>
+                <p-calendar id="prlEnd" name="prlEnd" [(ngModel)]="priceListFormModel.priceList.end"
+                  [showButtonBar]="true" [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true"
+                  yearRange="2000:2100" [required]="true" [minDate]="priceListFormModel.priceList.start" required>
+                </p-calendar>
+              </div>
+            </div>
+            <div class="grid">
+              <div class="field col-6">
+                <label for="prlAllPartners" class="formTitle">Todos os Parceiros</label>
+                <div class="field-input-switch">
+                  <div pTooltip="Disponível para canais que tem parceiro" tooltipPosition="right">
+                    <p-inputSwitch [(ngModel)]="priceListFormModel.priceList.allPartners" name="mandatory"
+                      class="input-switch-component"
+                      [disabled]="!priceListFormModel.priceList.channel?.hasPartner || editMode"
+                      (onChange)="changeFlagAllPartners()"></p-inputSwitch>
+                  </div>
+                </div>
+              </div>
+              <div class="md:col-6 text-right">
+                <div class="p-1">&nbsp;</div>
+                <button type="button" label="Editar Valores" icon="fa fa-file-o" pButton
+                  class="p-button-outlined p-button-secondary md:w-10rem"
+                  (click)="displayAdjustementDialog=true"></button>
+              </div>
+            </div>
+            <p-tabView class="p-tabview-px-0">
+
+              <!-- ABA DE PRODUTOS -->
+              <p-tabPanel>
+                <ng-template pTemplate="header">Produtos ({{priceListProductsList.length}})</ng-template>
+                <div class="grid">
+                  <div class="md:col-12 text-right">
+                    <div class="p-1">&nbsp;</div>
+                    <button type="button" label="Adicionar" icon="fa fa-plus" pButton
+                      class="p-button-outlined p-button-secondary md:w-10rem"
+                      (click)="displayProductFormDialog=true"></button>
+                  </div>
+                </div>
+
+                <div class="grid">
+                  <div class="col-12">
+                    <p-table #dtTbProduct [columns]="productCols" [value]="priceListProductsList" dataKey="id"
+                      [responsive]="true" selectionMode="single" [rows]="10" [showCurrentPageReport]="false"
+                      [paginator]="true" [scrollable]="true" (onRowSelect)="edit($event)" [resizableColumns]="true"
+                      (onPage)="changePage($event)" (onSort)="resetPage()" (onFilter)="resetPage()">
+                      <ng-template pTemplate="header" let-columns>
+                        <tr>
+                          <th *ngFor="let col of columns" [ngStyle]="{'min-width': col.width}" [pSortableColumn]="col.search" >
+                            {{col.header}}
+                            <p-columnFilter *ngIf="col.filterEnabled" [type]="col.filterType ? col.filterType : 'text'"
+                              [field]="col.search" display="menu">
+                            </p-columnFilter>
+                            <p-sortIcon [field]="col.search" *ngIf="col.filterEnabled" ></p-sortIcon>
+                          </th>
+                        </tr>
+                      </ng-template>
+                      <ng-template pTemplate="body" let-rowData let-columns="columns" let-rowIndex="rowIndex">
+                        <tr>
+                          <td [ngStyle]="{'min-width': columns[0].width}">
+                            <div *ngIf="rowData.error" class="grid-item-error" [pTooltip]="rowData.errorMsg"
+                              placeholder="Right">
+                              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                            </div>
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[1].width}">
+                            {{rowData.brand.name}}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[2].width}">
+                            {{rowData.model.name}}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[3].width}">
+                            {{rowData.product.name}}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[4].width}">
+                            {{formatModelYear( rowData.productModel.modelYearStart, rowData.productModel.modelYearEnd )}}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[5].width}">
+                            {{ (rowData.productModel?.hasProject ? 'Sim' : 'Não' ) }}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[6].width}">
+                            {{rowData.productModel ? rowData.productModel?.manufactureDays : 0}} dias
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[7].width}">
+                            {{rowData.price | currency:'BRL'}}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[8].width}">
+                            <button pButton pRipple type="button" icon="pi pi-pencil"
+                              class="p-button-rounded p-button-success mr-1"
+                              (click)="editProductItem( rowData )"></button>
+                            <button pButton pRipple type="button" icon="pi pi-trash"
+                              class="p-button-rounded p-button-danger mr-1"
+                              (click)="deleteProductItem( rowData )"></button>
+                          </td>
+                        </tr>
+                      </ng-template>
+                      <ng-template pTemplate="emptymessage">
+                        <tr>
+                          <td colspan="9" class="justify-content-center">Sem registros encontrados</td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+              </p-tabPanel>
+
+              <!-- ABA DE ITENS -->
+              <p-tabPanel>
+                <ng-template pTemplate="header">Itens ({{priceListItensList.length}})</ng-template>
+                <div class="grid">
+                  <div class="md:col-12 text-right">
+                    <div class="p-1">&nbsp;</div>
+                    <button type="button" label="Adicionar" icon="fa fa-plus" pButton
+                      class="p-button-outlined p-button-secondary md:w-10rem"
+                      (click)="displayItemFormDialog=true"></button>
+                  </div>
+                </div>
+
+                <div class="grid">
+                  <div class="col-12">
+                    <p-table #dtTbItem [columns]="itensCols" [value]="priceListItensList" dataKey="id"
+                      [responsive]="true" selectionMode="single" [rows]="10" [showCurrentPageReport]="false"
+                      [paginator]="true" [scrollable]="true" [(selection)]="priceListSelected"
+                      (onRowSelect)="edit($event)" responsiveLayout="scroll" [resizableColumns]="true">
+                      <ng-template pTemplate="header" let-columns>
+                        <tr>
+                          <th *ngFor="let col of columns" [ngStyle]="{'min-width': col.width}">
+                            {{col.header}}
+                            <p-columnFilter *ngIf="col.filterEnabled" [type]="col.filterType ? col.filterType : 'text'"
+                              [field]="col.search" display="menu"></p-columnFilter>
+                          </th>
+                        </tr>
+                      </ng-template>
+                      <ng-template pTemplate="body" let-rowData let-columns="columns">
+                        <tr>
+                          <td [ngStyle]="{'min-width': columns[0].width}">
+                            <div *ngIf="rowData.error" class="grid-item-error" [pTooltip]="rowData.errorMsg"
+                              placeholder="Right">
+                              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                            </div>
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[1].width}">
+                            {{rowData.item?.name}}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[2].width}">
+                            {{rowData.item?.itemType?.name}}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[3].width}">
+                            {{ (rowData.item?.generic ? 'Sim' : 'Não' ) }}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[4].width}">
+                            {{ ( rowData.allBrands ? 'Todas' : (rowData.brand ? rowData.brand.name : '-') ) }}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[5].width}">
+                            {{ ( rowData.allModels ? 'Todos' : (rowData.model ? rowData.model.name : '-') ) }}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[6].width}">
+                            <div *ngIf="rowData.itemModel">
+                              {{formatModelYear( rowData.itemModel.modelYearStart, rowData.itemModel.modelYearEnd )}}
+                            </div>
+                            <div *ngIf="rowData.allModels || rowData.allBrands">
+                              Todos
+                            </div>
+                            <div *ngIf="(!rowData.allModels && !rowData.allBrands) && !rowData.itemModel">
+                              -
+                            </div>
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[7].width}">
+                            {{rowData.price | currency:'BRL'}}
+                          </td>
+                          <td [ngStyle]="{'min-width': columns[8].width}">
+                            <button pButton pRipple type="button" icon="pi pi-pencil"
+                              class="p-button-rounded p-button-success mr-1" (click)="editItem( rowData )"></button>
+                            <button pButton pRipple type="button" icon="pi pi-trash"
+                              class="p-button-rounded p-button-danger mr-1" (click)="deleteItem( rowData )"></button>
+                          </td>
+                        </tr>
+                      </ng-template>
+                      <ng-template pTemplate="emptymessage">
+                        <tr>
+                          <td colspan="9" class="justify-content-center">Sem registros encontrados</td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                  </div>
+                </div>
+              </p-tabPanel>
+
+              <!-- ABA DE PARCEIROS -->
+              <p-tabPanel
+                *ngIf="(!priceListFormModel.priceList.allPartners && priceListFormModel.priceList.channel?.hasPartner)">
+                <ng-template pTemplate="header">Parceiro ({{priceListFormModel.partners?.length}})<span
+                    class="text-danger"> *</span></ng-template>
+                <div class="grid">
+                  <div class="md:col-12">
+                    <p-pickList [source]="partnerAvailableList" [target]="priceListFormModel.partners"
+                      [responsive]="true" filterBy="person.name,group.name" [showSourceControls]="false"
+                      [showTargetControls]="false" sourceHeader="Selecionar Parceiros"
+                      targetHeader="Parceiros Selecionados">
+                      <ng-template let-partner pTemplate="item">
+                        <span>{{partner?.partnerGroup?.name}} > {{partner?.person?.name}}</span>
+                      </ng-template>
+                    </p-pickList>
+                  </div>
+                </div>
+              </p-tabPanel>
+            </p-tabView>
+          </div>
+          <!-- Botões -->
+          <div class="col-12 flex flex-row justify-content-end py-0">
+            <button type="button" label="Cancelar" class="p-button-outlined p-button-light mr-3 md:w-10rem"
+              (click)="resetRegisterForm()" pButton></button>
+            <button type="button" label="Excluir Tabela" icon="fa fa-trash-o"
+              class="p-button-outlined p-button-danger mr-3 md:w-10rem" [disabled]="!priceListFormModel?.priceList?.id"
+              pButton (click)="delete()"></button>
+            <button type="button" label="Duplicar" icon="fa fa-files-o"
+              class="p-button-outlined p-button-secondary mr-3 md:w-10rem" [disabled]="!editMode" pButton
+              (click)="duplicate()"></button>
+            <button type="button" label="Novo" icon="fa fa-file-o"
+              class="p-button-outlined p-button-secondary mr-3 md:w-10rem" pButton (click)="new()"></button>
+            <button type="submit" label="Salvar" icon="fa fa-save" class="md:w-10rem" pButton></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP DE CADASTRO DE PRODUTO -->
+<p-dialog header="Produto" [(visible)]="displayProductFormDialog" [modal]="true"
+  [style]="{width: '45vw', height: '70%'}" [draggable]="true" [resizable]="false" [closable]="false">
+  <form #prdDialogForm="ngForm" novalidate>
+    <div class="ui-fluid">
+      <div class="p-fluid field">
+        <label for="lstBrand" class="formTitle">Marca<span class="text-danger">*</span></label>
+        <p-dropdown id="lstBrand" name="lstBrand" [options]="brandList" optionLabel="name"
+          placeholder="Selecione uma marca" filter="true" (onChange)="loadModelListByBrand($event.value)"
+          [(ngModel)]="productItemGrid.brand" [showClear]="false" appendTo="body" required></p-dropdown>
+      </div>
+      <div class="p-fluid field">
+        <label for="lstModel" class="formTitle">Modelo<span class="text-danger">*</span></label>
+        <p-dropdown id="lstModel" name="lstModel" [options]="modelListByBrand" optionLabel="name"
+          placeholder="Selecione um modelo" filter="true" (onChange)="loadProductListByModel($event.value)"
+          [(ngModel)]="productItemGrid.model" [showClear]="false" dataKey="id" appendTo="body" required>
+          <ng-template pTemplate="selectedItem">
+            <div *ngIf="productItemGrid.model">
+              <div>{{productItemGrid.model.name}} <small>({{productItemGrid.model.bodyType}} /
+                  {{productItemGrid.model.size}} / {{productItemGrid.model.category}} )</small></div>
+            </div>
+          </ng-template>
+          <ng-template let-item pTemplate="item">
+            <div>{{item.name}} <small>({{item.bodyType}} / {{item.size}} / {{item.category}} )</small></div>
+          </ng-template>
+        </p-dropdown>
+      </div>
+      <div class="p-fluid field">
+        <label for="lstProduct" class="formTitle">Produto<span class="text-danger">*</span></label>
+        <p-dropdown id="lstProduct" name="lstProduct" [options]="$productList | async" optionLabel="name"
+          placeholder="Selectione um produto" filter="true" (onChange)="loadProductModelList($event.value)"
+          [(ngModel)]="productItemGrid.product" [showClear]="false" dataKey="id" appendTo="body" required>
+        </p-dropdown>
+      </div>
+      <div class="p-fluid field">
+        <label for="lstProductModel" class="formTitle">Ano Modelo<span class="text-danger">*</span></label>
+        <p-dropdown id="lstProductModel" name="lstProductModel" [options]="$productModelList | async"
+          placeholder="Selectione um ano modelo" filter="true" [(ngModel)]="productItemGrid.productModel"
+          [showClear]="false" dataKey="id" appendTo="body" required>
+          <ng-template pTemplate="selectedItem">
+
+            <div *ngIf="productItemGrid.productModel">
+              {{formatModelYear( productItemGrid.productModel.modelYearStart, productItemGrid.productModel.modelYearEnd )}}
+            </div>
+          </ng-template>
+
+          <ng-template let-item pTemplate="item">
+            {{formatModelYear( item.modelYearStart, item.modelYearEnd )}}
+          </ng-template>
+
+        </p-dropdown>
+      </div>
+      <div class="p-fluid field">
+        <label class="formTitle">Projeto Disponível:&nbsp;</label>
+        <span>{{ (productItemGrid.productModel?.hasProject ? 'Sim' : 'Não' ) }} </span>
+      </div>
+      <div class="p-fluid field">
+        <label class="formTitle">Prazo:&nbsp;</label>
+        <span>{{productItemGrid.productModel ? productItemGrid.productModel?.manufactureDays : 0}} dias</span>
+      </div>
+      <div class="p-fluid field">
+        <label for="fldPrdPrice" class="formTitle">Preço<span class="text-danger">*</span></label>
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon">R$</span>
+          <p-inputNumber id="fldPrdPrice" name="fldPrdPrice" [(ngModel)]="productItemGrid.price" mode="currency"
+            currency="BRL" locale="pt-BR" required></p-inputNumber>
+        </div>
+      </div>
+    </div>
+  </form>
+  <ng-template pTemplate="footer">
+    <button type="button" label="Cancelar" class="p-button-outlined p-button-light mr-3 md:w-11rem" pButton
+      (click)="closeProductDialog();"></button>
+    <button type="button" label="Adicionar" class="md:w-11rem" pButton (click)="saveProductItem();"
+      [disabled]="prdDialogForm.form.invalid"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- POPUP DE CADASTRO DE ITENS -->
+<p-dialog header="Item" [(visible)]="displayItemFormDialog" [modal]="true" [style]="{width: '45vw', height: '80%'}"
+  [draggable]="true" [resizable]="false" [closable]="false">
+  <form #itmDialogForm="ngForm" novalidate>
+    <div class="ui-fluid">
+      <div class="p-fluid field">
+        <label for="lstItens" class="formTitle">Item<span class="text-danger">*</span></label>
+        <p-dropdown id="lstItens" name="lstItens" [options]="itemList" optionLabel="name"
+          placeholder="Selecione um item" filter="true" (onChange)="loadModelListByItem()"
+          [(ngModel)]="itemItemGrid.item" [showClear]="false" dataKey="id" appendTo="body" required>
+        </p-dropdown>
+      </div>
+      <div class="p-fluid field">
+        <label class="formTitle">Tipo:&nbsp;</label>
+        <span>{{ (itemItemGrid.item ? itemItemGrid.item?.itemType?.name : '-') }}</span>
+      </div>
+      <div class="p-fluid field">
+        <label class="formTitle">Obrigatoriedade:&nbsp;</label>
+        <span>{{ (itemItemGrid.item ? itemItemGrid.item?.mandatory : '-') }} </span>
+      </div>
+      <div class="p-fluid field">
+        <label class="formTitle">Todos os modelos:&nbsp;</label>
+        <span>{{ (itemItemGrid.item ? (itemItemGrid.item?.generic ? 'Sim' : 'Não') : '-' ) }} </span>
+      </div>
+      <div class="p-fluid field">
+        <label for="lstItemBrand" class="formTitle">Marca<span class="text-danger">*</span></label>
+        <p-dropdown id="lstItemBrand" name="lstItemBrand" [options]="itemBrandListTemp" optionLabel="name"
+          placeholder="Selecione uma marca" filter="true"
+          [disabled]="itemItemGrid.item?.generic || itemItemGrid.allBrands" dataKey="id"
+          (onChange)="loadItemModelListByBrand()" [(ngModel)]="itemItemGrid.brand" appendTo="body" [showClear]="false"
+          [required]="!itemItemGrid.item?.generic && !itemItemGrid.allBrands">
+        </p-dropdown>
+      </div>
+      <div class="p-fluid field-checkbox">
+        <p-checkbox id="flagItemAllBrand" name="flagItemAllBrand" [(ngModel)]="itemItemGrid.allBrands" [binary]="true"
+          [disabled]="itemItemGrid.item?.generic" (onChange)="changeFlagItemAllBrand()"></p-checkbox>
+        <label for="flagItemAllBrand" class="formTitle">Todas as marcas</label>
+      </div>
+
+      <div class="p-fluid field">
+        <label for="lstItemModel" class="formTitle">Modelos<span class="text-danger">*</span></label>
+        <p-dropdown id="lstItemModel" name="lstItemModel" [options]="itemModelListTemp" optionLabel="name"
+          placeholder="Selecione um modelo" filter="true"
+          [disabled]="itemItemGrid.item?.generic || itemItemGrid.allModels" dataKey="id"
+          (onChange)="loadItemModelListByModel()" [(ngModel)]="itemItemGrid.model" [showClear]="false" appendTo="body"
+          required>
+        </p-dropdown>
+      </div>
+      <div class="p-fluid field-checkbox">
+        <p-checkbox id="flagItemAllModels" name="flagItemAllModels" [(ngModel)]="itemItemGrid.allModels" [binary]="true"
+          [disabled]="itemItemGrid.item?.generic" (onChange)="changeFlagItemAllModels()"></p-checkbox>
+        <label for="flagItemAllModels" class="formTitle">Todas os modelos</label>
+      </div>
+
+      <div class="p-fluid field">
+        <label for="lstItemModelList" class="formTitle">Ano/Modelo<span class="text-danger">*</span></label>
+        <p-dropdown id="lstItemModelList" name="lstItemModelList" [options]="itemItemModelListTemp"
+          placeholder="Selecione um ano/modelo" filter="true"
+          [disabled]="itemItemGrid.item?.generic || itemItemGrid.allModels || itemItemGrid.allBrands"
+          [(ngModel)]="itemItemGrid.itemModel" [showClear]="false" dataKey="id" appendTo="body" required>
+          <ng-template pTemplate="selectedItem">
+            <div *ngIf="itemItemGrid.itemModel">
+              {{formatModelYear( itemItemGrid.itemModel.modelYearStart, itemItemGrid.itemModel.modelYearEnd )}}
+            </div>
+          </ng-template>
+          <ng-template let-item pTemplate="item">
+            {{formatModelYear( item.modelYearStart, item.modelYearEnd )}}
+          </ng-template>
+        </p-dropdown>
+      </div>
+      <div class="p-fluid field">
+        <label for="fldItemPrice" class="formTitle">Preço<span class="text-danger">*</span></label>
+        <div class="p-inputgroup">
+          <span class="p-inputgroup-addon">R$</span>
+          <p-inputNumber id="fldItemPrice" name="fldItemPrice" [(ngModel)]="itemItemGrid.price" mode="currency"
+            currency="BRL" locale="pt-BR" required></p-inputNumber>
+        </div>
+      </div>
+    </div>
+  </form>
+  <ng-template pTemplate="footer">
+    <button type="button" label="Cancelar" class="p-button-outlined p-button-light mr-3 md:w-11rem" pButton
+      (click)="closeItemDialog()"></button>
+    <button type="button" label="Adicionar" class="md:w-11rem" pButton (click)="saveItem();"
+      [disabled]="itmDialogForm.form.invalid"></button>
+  </ng-template>
+</p-dialog>
+
+<!-- POPUP DE VALORES -->
+<p-dialog header="Editar Valores" [(visible)]="displayAdjustementDialog" [modal]="true"
+  [style]="{width: '20vw', height: '43%'}" [draggable]="true" [resizable]="false" [closable]="false"
+  (onShow)="listAdjustProducts()">
+  <form #adjDialogForm="ngForm" novalidate>
+    <div class="ui-fluid">
+      <div class="p-fluid">
+        <label class="formTitle">Ação</label>
+        <div class="flex flex-row">
+          <div class="col-6 field-radiobutton">
+            <p-radioButton name="action" value="adjust" [(ngModel)]="adjustmentControl.action"
+              (onClick)="adjustmentAction()" inputId="adjust" required></p-radioButton>
+            <label for="adjust">Ajustar</label>
+          </div>
+          <div class="col-6 field-radiobutton ">
+            <p-radioButton name="action" value="reset" [(ngModel)]="adjustmentControl.action"
+              (onClick)="adjustmentAction()" inputId="reset" required></p-radioButton>
+            <label for="reset">Redefinir</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="ui-fluid">
+      <div class="p-fluid">
+        <label class="formTitle">Ajuste</label>
+        <div class="flex flex-row">
+          <div class="col-6 field-radiobutton">
+            <p-radioButton name="change" value="percent" [(ngModel)]="adjustmentControl.change"
+              (onClick)="adjustmentType()" [disabled]="adjustmentControl.action=='reset'" inputId="percent" required>
+            </p-radioButton>
+            <label for="percent">Porcentagem</label>
+          </div>
+          <div class="col-6 field-radiobutton">
+            <p-radioButton name="change" value="monetary" [(ngModel)]="adjustmentControl.change"
+              (onClick)="adjustmentType()" inputId="monetary" required></p-radioButton>
+            <label for="monetary">Monetário</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="p-fluid field">
+      <label for="fldTableValue" class="formTitle">Valor<span class="text-danger">*</span></label>
+      <div class="p-inputgroup" *ngIf="adjustmentControl.change == 'monetary'">
+        <span class="p-inputgroup-addon">R$</span>
+        <p-inputNumber id="fldTableValue" name="fldTableValue" [(ngModel)]="adjustmentControl.monetaryValue"
+          mode="currency" currency="BRL" locale="pt-BR" required></p-inputNumber>
+      </div>
+      <div class="p-inputgroup" *ngIf="adjustmentControl.change == 'percent'">
+        <p-inputNumber id="fldTableValue" name="fldTableValue" [(ngModel)]="adjustmentControl.percentValue"
+          locale="pt-BR" mode="decimal" [maxFractionDigits]="2" required></p-inputNumber>
+        <span class="p-inputgroup-addon">%</span>
+      </div>
+    </div>
+    <div class="p-fluid field">
+      <label for="lstGridProducts" class="formTitle">Produto<span class="text-danger">*</span></label>
+      <p-dropdown id="lstGridProducts" name="lstGridProducts" [options]="adjustmentControl.products" optionLabel="name"
+        placeholder="Selecione um produto" [(ngModel)]="adjustmentControl.product" [showClear]="false" appendTo="body"
+        required></p-dropdown>
+    </div>
+  </form>
+  <ng-template pTemplate="footer">
+    <button type="button" label="Cancelar" class="p-button-outlined p-button-light mr-3 md:w-10rem" pButton
+      (click)="closeAdjustmentDialog()"></button>
+    <button type="button" label="Aplicar" class="md:w-10rem" pButton (click)="applyAdjustment();"
+      [disabled]="adjDialogForm.form.invalid"></button>
+  </ng-template>
+</p-dialog>

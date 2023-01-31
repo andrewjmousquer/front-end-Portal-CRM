@@ -1,0 +1,35 @@
+::ng-deep .custom-chip{
+    color: #ffffff;
+    font-weight: bold;
+    height: 1.7rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+::ng-deep .p-chip-followup{
+    background-color: #8439e3;
+}
+
+::ng-deep .p-chip-d7{
+    background-color: #faa606;
+}
+
+::ng-deep .p-chip-d1{
+    background-color: #c3393c;
+}
+
+::ng-deep .p-chip-text{
+    width: 100%;
+}
+
+::ng-deep .p-fieldset.p-fieldset-toggleable .p-fieldset-legend a{
+    padding: 0.6rem;
+}
+
+::ng-deep .p-button-view{
+    background-color: #0288D1;
+}
+
+::ng-deep .p-button-edid{
+    background-color: #0ea413;
+}

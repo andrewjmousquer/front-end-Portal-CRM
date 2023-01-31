@@ -1,0 +1,369 @@
+<!-- proposal -->
+<div class="grid">
+  <div class="col">
+    <div class="p-fluid grid form-group">
+      <div class="field col">
+        <label for="channel" class="formTitle">Canal <span class="text-danger">*</span> </label>
+        <p-dropdown id="channel" [options]="channelList" [autoDisplayFirst]="false"
+          [(ngModel)]="proposal.proposalDetail.channel" name="channel" optionLabel="name" dataKey="id"
+          [showClear]="false" required (onChange)="changeCannal()">
+        </p-dropdown>
+      </div>
+      <div class="field col">
+        <label for="risk" class="formTitle">Risco <span class="text-danger">*</span></label>
+        <p-dropdown id="risk" [options]="riskList" [autoDisplayFirst]="false" [(ngModel)]="proposal.riskClassification"
+          name="risk" optionLabel="label" dataKey="id" [showClear]="false" required>
+        </p-dropdown>
+      </div>
+      <div class="col field">
+        <label for="promptDelivery" class="formTitle">Pronta Entrega</label>
+        <div class="field-input-switch">
+          <p-inputSwitch (onChange)="changeImmediateDelivery()" [(ngModel)]="proposal.immediateDelivery"
+            name="promptDelivery" class="input-switch-component">
+          </p-inputSwitch>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col">
+    <div class="flex justify-content-end">
+      <button type="button" label="Buscar Lead" icon="fa fa-user" pButton
+        class="p-button-outlined p-button-secondary md:w-10rem" (click)="openLead()"></button>
+    </div>
+  </div>
+</div>
+
+<hr class="mt-0" />
+
+<!-- proposalPerson -->
+<div *ngFor="let proposalPerson of proposal.personList; index as i;" class="p-fluid form-group mt-auto">
+  <div class="grid">
+    <div class="col-5">
+      <h5 class="flex align-items-center justify-content-start">
+        <span class="mt-2">
+          Cliente{{proposal.personList.length > 1 ? ' ' + (i + 1) : ''}}:
+          {{proposalPerson.proposalPersonClassification.label | titlecase}}
+        </span>
+
+        <p-tag *ngIf="proposalPerson.previousProposals" value="Propostas Anteriores" icon="fa fa-exclamation-triangle"
+          rounded="true" severity="warning" class="cursor-pointer ml-2" (click)="openModalPrevious(proposalPerson)">
+        </p-tag>
+      </h5>
+
+      <div class="grid">
+        <div class="col-12">
+          <label for="classification" class="formTitle">Tipo <span class="text-danger">*</span></label>
+          <div class="grid mt-2">
+            <div *ngFor="let classification of personClassificationList" class="col field">
+              <p-radioButton [name]="'classification' + i" [value]="classification" [label]="classification.label"
+                [(ngModel)]="proposalPerson.person.classification" (onClick)="changeClassification(proposalPerson)"
+                [disabled]="proposal.immediateDelivery">
+              </p-radioButton>
+            </div>
+          </div>
+        </div>
+
+        <wbp-field *ngIf="proposalPerson.person.classification.value == personClassifierEnum.physical" class="col-6"
+          label="CPF" type="mask" [mask]="maskEnum.CPF" [(model)]="proposalPerson.person.cpf" [name]="'cpf'+i"
+          required="true" [placeholder]="placeholderEnum.CPF" (onComplete)="loadPerson(proposalPerson)"
+          [disabled]="proposal.immediateDelivery"></wbp-field>
+
+        <wbp-field *ngIf="proposalPerson.person.classification.value == personClassifierEnum.legal" class="col-6"
+          label="CNPJ" type="mask" [mask]="maskEnum.CNPJ" [(model)]="proposalPerson.person.cnpj" [name]="'cnpj'+i"
+          required="true" [placeholder]="placeholderEnum.CNPJ" (onComplete)="loadPerson(proposalPerson)"
+          [disabled]="proposal.immediateDelivery"></wbp-field>
+
+          <wbp-field *ngIf="proposalPerson.person.classification.value == personClassifierEnum.foreign"
+          class="col-6" label="RNE" type="text" [(model)]="proposalPerson.person.rne"
+          [name]="'rne'+i" required="true"
+          (onComplete)="loadPerson(proposalPerson)" [disabled]="proposal.immediateDelivery"></wbp-field>
+
+        <div class="field col-6">
+          <label for="paper" class="formTitle" class="formTitle">
+            Papel <span class="text-danger">*</span>
+          </label>
+          <p-dropdown id="customerType" [options]="customerTypeList" [autoDisplayFirst]="false"
+            [(ngModel)]="proposalPerson.proposalPersonClassification" name="customerType" optionLabel="label"
+            [showClear]="false" placeholder="Papel" dataKey="id" [required]="true"
+            [disabled]="proposal.immediateDelivery" (onChange)="changeCustomerType(proposalPerson)" [readonly]="i == 0">
+          </p-dropdown>
+        </div>
+
+        <div class="field col-6">
+          <label for="email" class="formTitle" class="formTitle">
+            E-mail <span class="text-danger">*</span>
+          </label>
+          <input [name]="'email'+i" [id]="'email'+i" type="email" email="true" pInputText
+            [(ngModel)]="proposalPerson.email" placeholder="exemplo@exemplo.com" autocomplete="off" maxlength="150"
+            required [disabled]="proposal.immediateDelivery" (change)="changeEmail(proposalPerson, i)" />
+        </div>
+
+        <wbp-field class="col-6" label="Telefone" type="text" [(model)]="proposalPerson.phone" [name]="'phone'+i"
+          required="true" type="mask" [mask]="maskEnum.PHONE" [placeholder]="placeholderEnum.PHONE"
+          (onComplete)="changePhone(proposalPerson, i)" [disabled]="proposal.immediateDelivery"></wbp-field>
+
+        <div class="field col">
+          <label for="name" class="formTitle"
+            *ngIf="proposalPerson.person.classification.value != personClassifierEnum.legal">
+            Nome <span class="text-danger">*</span>
+          </label>
+          <label for="name" class="formTitle"
+            *ngIf="proposalPerson.person.classification.value == personClassifierEnum.legal">
+            Nome Fantasia<span class="text-danger">*</span>
+          </label>
+          <div class="flex">
+            <input [name]="'name'+i" id="name" type="text" pInputText [(ngModel)]="proposalPerson.person.name"
+              autocomplete="off" required [disabled]="proposal.immediateDelivery" />
+            <wbp-person-modal [(personRegister)]="proposalPerson.person"
+              (getPersonInitCustom)="getPersonInitCustom(proposalPerson)"
+              (onComplete)="onCompletePessoa($event, proposalPerson)"
+              [disabled]="personModalDisabled(proposalPerson.email)" class="ml-2"></wbp-person-modal>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contato comercial -->
+      <div *ngIf="proposalPerson.person.classification.value == personClassifierEnum.legal && i == 0">
+        <h5 class="flex align-items-center justify-content-start mt-3 mb-3">
+          Contato Comercial
+        </h5>
+        <div class="grid">
+          <wbp-field class="col" label="Nome do Contato" [(model)]="proposal.commercialContactName" [name]="'contactname'+i"
+              type="text" maxlength="150" required="true" placeholder=""></wbp-field>
+        </div>
+        <div class="grid">
+          <wbp-field class="col-6" label="E-mail do contato" [(model)]="proposal.commercialContactEmail" [name]="'contactemail'+i"
+            type="text" maxlength="150" required="true" [placeholder]="placeholderEnum.EMAIL"></wbp-field>
+
+          <wbp-field class="col-6" label="Telefone do contato"
+            [(model)]="proposal.commercialContactPhone" [name]="'contactephone'+i"
+            required="true" type="mask" [mask]="maskEnum.PHONE" [placeholder]="placeholderEnum.PHONE"></wbp-field>
+        </div>
+      </div>
+    </div>
+
+    <!-- Qualificações -->
+    <div class="col col-offset-1">
+      <wbp-qualification [qualifications]="proposalPerson.person.qualifications"></wbp-qualification>
+    </div>
+
+  </div>
+  <div class="grid mb-2" *ngIf="i > 0">
+    <div class="col-12 flex flex-row justify-content-start py-0">
+      <button type="button" label="Remover Cliente" icon="fa fa-trash" pButton
+        class="p-button-outlined p-button-danger mr-3 md:w-14rem" (click)="removeProposalPerson(i)"
+        [disabled]="proposal.immediateDelivery"></button>
+    </div>
+  </div>
+  <hr class="mt-0" />
+</div>
+
+<div class="grid">
+  <div class="col-12 flex flex-row justify-content-start pb-0">
+    <button type="button" label="Adicionar Cliente" icon="fa fa-plus" pButton
+      class="p-button-outlined p-button-secondary mr-3 md:w-14rem" (click)="addProposalPerson()"
+      [disabled]="proposal.immediateDelivery"></button>
+  </div>
+</div>
+
+<!-- Contact -->
+<div *ngIf="isShowContact()" class="p-fluid form-group mt-auto">
+  <div class="grid mt-4">
+    <div class="col-12">
+      <h5 class="mb-0">Contato</h5>
+      <hr class="mt-0">
+    </div>
+    <div class="col-4">
+      <div class="field flex">
+        <label class="formTitle pt-2 mr-3" for="documentContact">Documentação</label>
+        <p-inputSwitch [(ngModel)]="proposal.documentContact" name="documentContact" class="input-switch-component"
+          (onChange)="changeDocumentContact()">
+        </p-inputSwitch>
+        <label class="formTitle pt-2 ml-2" for="documentContact">Utilizar dados do Financiador?</label>
+      </div>
+      <div class="field">
+        <label for="documentContactName" class="formTitle" class="formTitle">
+          Contato Documentação <span class="text-danger">*</span>
+        </label>
+        <input name="documentContactName" id="documentContactName" type="text" pInputText
+          [(ngModel)]="proposal.documentContactName" autocomplete="off" required
+          [disabled]="proposal.documentContact" />
+      </div>
+      <div class="field">
+        <label for="documentContactEmail" class="formTitle" class="formTitle">
+          E-mail Documentação <span class="text-danger">*</span>
+        </label>
+        <input name="documentContactEmail" id="documentContactEmail" type="text" pInputText
+          [(ngModel)]="proposal.documentContactEmail" autocomplete="off" placeholder="exemplo@exemplo.com" email="true"
+          maxlength="150" required [disabled]="proposal.documentContact" />
+      </div>
+      <div class="field">
+        <label for="documentContactPhone" class="formTitle" class="formTitle">
+          Telefone Documentação <span class="text-danger">*</span>
+        </label>
+        <p-inputMask name="documentContactPhone" id="documentContactPhone" type="text"
+          [(ngModel)]="proposal.documentContactPhone" autocomplete="off" [mask]="maskEnum.PHONE"
+          placeholder="(00)00000-0000" maxlength="13" required unmask="true" [disabled]="proposal.documentContact">
+        </p-inputMask>
+      </div>
+    </div>
+    <div class="col-4 col-offset-2">
+      <div class="field flex">
+        <label class="formTitle pt-2 mr-3" for="finantialContact">Financeiro</label>
+        <p-inputSwitch [(ngModel)]="proposal.finantialContact" name="finantialContact" class="input-switch-component"
+          (onChange)="changeFinantialContact()">
+        </p-inputSwitch>
+        <label class="formTitle pt-2 ml-2" for="finantialContact">Utilizar dados do Financiador?</label>
+      </div>
+      <div class="field">
+        <label for="cnpj" class="formTitle" class="formTitle">
+          Contato Financeiro <span class="text-danger">*</span>
+        </label>
+        <input name="finantialContactName" id="finantialContactName" type="text" pInputText
+          [(ngModel)]="proposal.finantialContactName" autocomplete="off" required
+          [disabled]="proposal.finantialContact" />
+      </div>
+      <div class="field">
+        <label for="finantialContactEmail" class="formTitle" class="formTitle">
+          E-mail Financeiro <span class="text-danger">*</span>
+        </label>
+        <input name="finantialContactName" id="finantialContactName" type="text" pInputText
+          [(ngModel)]="proposal.finantialContactEmail" autocomplete="off" placeholder="exemplo@exemplo.com" email="true"
+          maxlength="150" required [disabled]="proposal.finantialContact" />
+      </div>
+      <div class="field">
+        <label for="finantialContactPhone" class="formTitle" class="formTitle">
+          Telefone Financeiro <span class="text-danger">*</span>
+        </label>
+        <p-inputMask name="finantialContactPhone" id="finantialContactPhone" type="text"
+          [(ngModel)]="proposal.finantialContactPhone" autocomplete="off" [mask]="maskEnum.PHONE"
+          placeholder="(00)0000-00000" maxlength="13" required unmask="true" [disabled]="proposal.finantialContact">
+        </p-inputMask>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Persons -->
+<p-dialog header="Selecionar Clientes" [(visible)]="displayModalPerson" [modal]="true"
+  [style]="{width: '50%', height: '40rem'}" [closeOnEscape]="false" [baseZIndex]="10000" [draggable]="true"
+  [resizable]="true">
+  <h4>As seguintes pessoas possuem um ou mais dados de contato igual ao informado na proposta. Você pode selecionar a
+    pessoa na lista
+    para utilizá-la na proposta, ou clicar em <i><b>"Voltar"</b></i> para prosseguir com o cadastro da nova pessoa.</h4>
+  <br>
+  <div class="grid">
+    <div class="col">
+      <p-table #dt [columns]="colsPerson" [value]="personList" dataKey="id" [responsive]="true" selectionMode="single"
+        [scrollable]="true" [resizableColumns]="true" [rows]="10" [paginator]="true">
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}">
+              {{col.header}}
+              <p-sortIcon [field]="col.field"></p-sortIcon>
+            </th>
+            <th style="max-width: 7rem;">Selecionar</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr style=" text-align: center;">
+            <td>
+              <div *ngIf="rowData.classification">
+                <p-badge [value]="rowData.classification.value" severity="info" class="circle-type-person"
+                  *ngIf="rowData.classification.value == personClassifierEnum.physical"></p-badge>
+
+                <p-badge [value]="rowData.classification.value" severity="danger" class="circle-type-person"
+                  *ngIf="rowData.classification.value == personClassifierEnum.legal"></p-badge>
+
+                <p-badge value="E" severity="default" class="circle-type-person"
+                  *ngIf="rowData.classification.value == personClassifierEnum.foreign"></p-badge>
+              </div>
+              {{ rowData.name }}
+
+            </td>
+            <td>
+              <div *ngIf="rowData.classification">
+                <span *ngIf="rowData.classification.value == personClassifierEnum.physical">
+                  CPF: {{ rowData.cpf }}
+                </span>
+                <span *ngIf="rowData.classification.value == personClassifierEnum.legal">
+                  CNPJ: {{ rowData.cnpj }}
+                </span>
+                <span *ngIf="rowData.classification.value == personClassifierEnum.foreign">
+                  RNE: {{ rowData.rne }}
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="flex flex-column">
+                <div class="flex" *ngFor="let contact of rowData.contacts">
+                  {{contact.type.value}}: {{contact.value}}
+                </div>
+              </div>
+            </td>
+            <td class="justify-content-center" style="max-width: 7rem;">
+              <button pButton type="button" class="p-button-success p-button-rounded p-button-edid ml-3"
+                icon="fa fa-check" (click)="changePerson(rowData)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <div class="footer-buttons-modal">
+    <div class="col-12 flex flex-row justify-content-end p-0">
+      <button type="button" label="Voltar" icon="fa fa-arrow-left" class="p-button-secondary mr-3 md:w-10rem" pButton
+        (click)="displayModalPerson=false"></button>
+    </div>
+  </div>
+</p-dialog>
+
+<!-- Modal Previsous -->
+<p-dialog header="Propostas Anteriores" [(visible)]="displayModalPrevious" [modal]="true"
+  [style]="{width: '50%', height: '40rem'}" [closeOnEscape]="false" [baseZIndex]="10000" [draggable]="true"
+  [resizable]="true">
+  <div class="grid">
+    <div class="col">
+      <p-table #dt [columns]="colsPrevious" [value]="previousList" dataKey="id" [responsive]="true"
+        selectionMode="single" [scrollable]="true" [resizableColumns]="true" [rows]="10" [paginator]="true">
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}">
+              {{col.header}}
+              <p-sortIcon [field]="col.field"></p-sortIcon>
+            </th>
+            <th style="max-width: 7rem;">Selecionar</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr style=" text-align: center;">
+            <td>{{rowData.proposalNumber}}</td>
+            <td>{{rowData.createDate}}</td>
+            <td>{{rowData.brandModel}}</td>
+            <td>{{rowData.partner}}</td>
+            <td>{{rowData.statusCla.label}}</td>
+
+            <td class="justify-content-center" style="max-width: 7rem;">
+              <button pButton type="button" class="p-button p-button-rounded p-button-edid" icon="fa fa-eye"
+                (click)="openModalResume(rowData)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <div class="footer-buttons-modal">
+    <div class="col-12 flex flex-row justify-content-end p-0">
+      <button type="button" label="Fechar" icon="fa fa-ban" class="p-button mr-3 md:w-10rem" pButton
+        (click)="displayModalPrevious=false"></button>
+    </div>
+  </div>
+</p-dialog>
+
+<p-dialog [(visible)]="displayModalResume" [modal]="true" [style]="{width: '95%', maxWidth: '120rem'}"
+  [closeOnEscape]="false" [baseZIndex]="10000" [draggable]="true" [resizable]="true">
+  <wbp-proposal-header [(register)]="this.resume.proposal"></wbp-proposal-header>
+  <wbp-proposal-resume [(proposal)]="this.resume.proposal"></wbp-proposal-resume>
+</p-dialog>

@@ -1,0 +1,327 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="md:col-5">
+      <div class="card no-margin">
+        <form #parameterSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Parceiro</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field col">
+              <label for="Identification" class="formTitle">Buscar</label>
+              <div class="input-group-clear">
+                <input id="input" type="text" placeholder="Buscar" pInputText [(ngModel)]="modelSearch.person"
+                  name="search" />
+                <a (click)="resetSearchForm()" *ngIf="modelSearch.person"><i class="pi pi-times"></i></a>
+              </div>
+            </div>
+            <div class="md:col-3 mt-3 pt-3">
+              <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+            </div>
+            <div class="md:col-12">
+              <p-table #dt [columns]="cols" [value]="modelList" dataKey="id" [style]="{'margin-bottom':'20px'}"
+                [responsive]="true" selectionMode="single" [(selection)]="modelRegister" (onRowSelect)="edit($event)"
+                (onRowUnselect)="resetRegisterForm()" [resizableColumns]="true"
+                [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th style="min-width: 200px;" pSortableColumn="person.name">Nome<p-sortIcon field="person.name"></p-sortIcon></th>
+                    <th pSortableColumn="partnerGroup.name">Grupo<p-sortIcon field="partnerGroup.name"></p-sortIcon></th>
+                    <th pSortableColumn="channel.name">Canal<p-sortIcon field="channel.name"></p-sortIcon></th>
+                    <th pSortableColumn="situation.label">Situação<p-sortIcon field="situation.label"></p-sortIcon></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr [pSelectableRow]="rowData">
+                    <td style="min-width: 200px;">
+                      {{rowData.person.name}}
+                    </td>
+                    <td>
+                      {{rowData.partnerGroup?.name }}
+                    </td>
+                    <td>
+                      {{rowData.channel.name }}
+                    </td>
+                    <td>
+                      {{rowData.situation.label}}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col-12 lg:col-7">
+      <div class="card no-margin">
+        <form #partnerRegisterForm="ngForm" (ngSubmit)="confirmSave()" novalidate>
+          <h5>Cadastro de Parceiro</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field md:col-4">
+              <label for="personClassificationType" class="formTitle">
+                Tipo de Pessoa
+                <span class="text-danger">*</span>
+              </label>
+              <p-dropdown id="personClassificationType" filter="true" [options]="personClassificationList" [autoDisplayFirst]="true"
+                [(ngModel)]="modelRegister.person.classification" name="personClassificationType" dataKey="id" optionLabel="label" [showClear]="false">
+              </p-dropdown>
+            </div>
+            <div class="field col-4">
+              <label for="cpf" class="formTitle">
+                {{modelRegister.person.classification ? personDocumentEnum[modelRegister.person.classification.value] : 'Documento'}}
+                <span class="text-danger">*</span>
+              </label>
+              <div class="flex">
+                <p-inputMask *ngIf="modelRegister.person.classification.value == personClassifierEnum.physical" [mask]="maskEnum.CPF"
+                  (onBlur)="loadPerson()" [(ngModel)]="modelRegister.person.cpf" name="cpf" maxlength="18" class="w-full"
+                  required>
+                </p-inputMask>
+
+                <p-inputMask *ngIf="modelRegister.person.classification.value == personClassifierEnum.legal" [mask]="maskEnum.CNPJ"
+                  (onBlur)="loadPerson()" [(ngModel)]="modelRegister.person.cnpj" name="cnpj" maxlength="18" class="w-full"
+                  required>
+                </p-inputMask>
+
+                <input *ngIf="modelRegister.person.classification.value == personClassifierEnum.foreign" name="rne" id="rne" type="text"
+                  pInputText (blur)="loadPerson()" [(ngModel)]="modelRegister.person.rne" autocomplete="off" maxlength="45"
+                  required />
+
+                <wbp-person-modal [(personRegister)]="modelRegister.person"
+                  (onComplete)="onCompletePerson($event)" class="ml-2"></wbp-person-modal>
+              </div>
+            </div>
+
+            <div class="field col">
+              <label for="name" class="formTitle" *ngIf="modelRegister.person.classification.value !== personClassifierEnum.legal">
+                Nome <span class="text-danger">*</span></label>
+            <label for="name" class="formTitle" *ngIf="modelRegister.person.classification.value == personClassifierEnum.legal">
+                Nome Fantasia<span class="text-danger">*</span></label>
+              <input name="name" id="name" type="text" pInputText [(ngModel)]="modelRegister.person.name"
+                autocomplete="off" required />
+            </div>
+          </div>
+          <div class="p-fluid grid form-group">
+            <div class="col field">
+              <label for="registerChannel" class="formTitle">Canal <span class="text-danger">*</span></label>
+              <p-dropdown id="partnerChannel" [options]="channelList" [(ngModel)]="modelRegister.channel"
+                name="partnerChannel" dataKey="id" optionLabel="name" [autoDisplayFirst]="false" [showClear]="false" required>
+              </p-dropdown>
+            </div>
+            <div class="col field">
+              <label for="registerPartnerGroup" class="formTitle">Grupo de Parceiro</label>
+              <p-dropdown id="partnerGroup" filter="true" [options]="partnerGroupList" [(ngModel)]="modelRegister.partnerGroup"
+                name="partnerGroup" dataKey="id" optionLabel="name" [autoDisplayFirst]="false" [showClear]="true">
+              </p-dropdown>
+            </div>
+              <div class="col field">
+                <label for="additionalTerm" class="formTitle">Adicional de Prazo<span class="text-danger">*</span></label>
+                <div class="p-inputgroup">
+                  <p-inputNumber [(ngModel)]="modelRegister.additionalTerm" [required]="true" name="additionalTerm"
+                    id="additionalTerm"></p-inputNumber>
+                  <span class="p-inputgroup-addon">Dias</span>
+                </div>
+              </div>
+          </div>
+          <div class="p-fluid grid form-group">
+            <div class="field md:col-4">
+              <label for="status" class="formTitle">Situação <span class="text-danger">*</span></label>
+              <p-dropdown id="status" [options]="situationList" [(ngModel)]="selectedSituation"
+                name="registerStatus" dataKey="id" optionLabel="label" [showClear]="false" required>
+              </p-dropdown>
+            </div>
+            <div class="col field">
+              <label for="isAssistance" class="formTitle">Assistência</label>
+              <div class="field-input-switch">
+                <p-inputSwitch [(ngModel)]="modelRegister.isAssistance" name="isAssistance" class="input-switch-component">
+                </p-inputSwitch>
+              </div>
+            </div>
+          </div>
+
+          <p-tabView>
+            <p-tabPanel header="Resumo">
+              <div class="mb-4">
+                <wbp-person-resume [(personRegister)]="modelRegister.person"></wbp-person-resume>
+              </div>
+            </p-tabPanel>
+            <p-tabPanel header="Colaboradores do Parceiro">
+              <div class="p-fluid grid form-group">
+                <div class="field col">
+                  <label for="Identification" class="formTitle">Buscar</label>
+                  <div class="input-group-clear">
+                    <input id="employeeSearch" type="text" pInputText placeholder="Nome do Colaborador"
+                      [(ngModel)]="employeeSearch.person.name" name="employeeSearch" class="w-full" />
+                    <a (click)="resetEmployeeSearch()" *ngIf="employeeSearch.person.name"><i class="pi pi-times"></i></a>
+                  </div>
+                </div>
+                <div class="md:col-2 mt-3 pt-3">
+                  <button type="button" label="Buscar" icon="fa fa-search" (click)="searchEmployee()"
+                    class="p-button-outlined p-button-secondary mr-3" pButton></button>
+                </div>
+                <div class="md:col-2 mt-3 pt-3">
+                  <button type="button" label="Adicionar" icon="fa fa-plus" (click)="openEmployeeModal()"
+                  class="p-button-outlined p-button-secondary mr-3 " pButton></button>
+                </div>
+              </div>
+
+              <div class="grid">
+                <div class="col-7">
+                  <p-table #dtEmployee [columns]="colsEmployee" [value]="employeeList" dataKey="person.id" [style]="{'margin-bottom':'20px'}"
+                    [responsive]="true" selectionMode="single" [(selection)]="employeeRegister" (onRowSelect)="editEmployee()"
+                    (onRowUnselect)="resetEmployeeRegister()" [resizableColumns]="true"
+                    [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true">
+                    <ng-template pTemplate="header" let-columns>
+                      <tr>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}">
+                          {{col.header}}
+                          <p-sortIcon [field]="col.field"></p-sortIcon>
+                        </th>
+                        <th class="">
+                          <p></p>
+                        </th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-rowData let-columns="columns">
+                      <tr [pSelectableRow]="rowData">
+                        <td>
+                          {{rowData.person.name}}
+                        </td>
+                        <td>
+                          {{rowData.personType.label}}
+                        </td>
+                        <td class="justify-content-end trashModel">
+                          <button pButton type="button" class="p-button p-button-rounded p-button-danger"
+                            icon="pi pi-trash" (click)="removeEmployee(rowData)"></button>
+                        </td>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="emptymessage">
+                      <tr>
+                        <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+                <div class="col-5">
+                  <p-tabView class="p-tabview-px-0">
+                    <p-tabPanel header="Resumo">
+                      <div class="mb-4">
+                        <wbp-person-resume [(personRegister)]="employeeRegister.person" ></wbp-person-resume>
+                      </div>
+                    </p-tabPanel>
+                    <p-tabPanel header="Comissão Geral">
+                      <div class="mb-2">
+                       <div class="p-fluid grid form-group">
+                         <div class="col field">
+                            <label for="registerProfile" class="formTitle">Perfil <span class="text-danger">*</span></label>
+                            <p-dropdown id="registerProfile" [options]="personTypeList" [autoDisplayFirst]="false" [(ngModel)]="employeeRegister.personType"
+                              name="registerProfile" dataKey="id" optionLabel="label" [showClear]="false">
+                            </p-dropdown>
+                          </div>
+                          <div class="field col">
+                            <label for="Identification" class="formTitle">Comissão Padrão</label>
+                            <div class="input-group-clear">
+                              <p-inputNumber id="defaultCommission" name="defaultCommission" [(ngModel)]="defaultCommission" mode="currency" currency="BRL" locale="pt-BR"></p-inputNumber>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="mb-2">
+                        <div class="p-fluid grid form-group">
+                          <div class="field col">
+                            <label for="Identification" class="formTitle">Bonûs Padrão</label>
+                            <p-inputNumber id="defaultBonus" name="defaultBonus" [(ngModel)]="defaultBonus" mode="currency" currency="BRL" locale="pt-BR"></p-inputNumber>
+                          </div>
+                           <div class="field col">
+                             <label for="Identification" class="formTitle">Paga Prêmio Padrão</label>
+                             <div class="input-group-clear">
+                              <p-inputNumber id="defaultPayPrize" name="defaultPayPrize" [(ngModel)]="defaultPayPrize" mode="currency" currency="BRL" locale="pt-BR"></p-inputNumber>
+                             </div>
+                           </div>
+                         </div>
+                      </div>
+                    </p-tabPanel>
+                  </p-tabView>
+                  <div class="col-12 flex flex-row justify-content-end py-0">
+                    <button type="button" label="Cancelar" icon="fa fa-ban" pButton
+                      class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetEmployeeRegister()" *ngIf="isEditEmployee"></button>
+                    <button type="button" label="Salvar" icon="fa fa-user-o" pButton
+                      class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="saveEmployee()" *ngIf="isEditEmployee"></button>
+                  </div>
+                </div>
+              </div>
+            </p-tabPanel>
+            <p-tabPanel header="Marca">
+              <div class="p-fluid grid form-group">
+                <div class="field col">
+                  <label for="partnerSearch" class="formTitle">Buscar</label>
+                  <div class="input-group-clear">
+                    <input id="brandSearch" type="text" pInputText placeholder="Nome da Marca"
+                      [(ngModel)]="brandSearch.name" name="search" class="w-full" />
+                    <a (click)="resetBrandSearchName()" *ngIf="brandSearch.name"><i class="pi pi-times"></i></a>
+                  </div>
+                </div>
+                <div class="md:col-2 mt-3 pt-3">
+                  <button type="button" label="Pesquisar" icon="fa fa-search" class="p-element p-button p-component mr-3" pButton (click)="fillBrand()"></button>
+                </div>
+              </div>
+              <p-pickList [source]="brandAvailableList" [target]="brandSelectedList" [responsive]="true"
+                [showSourceControls]="false" [showTargetControls]="false" sourceHeader="Selecionar Marcas"
+                targetHeader="Marcas Selecionadas">
+                <ng-template let-brand pTemplate="item">
+                  <span>{{brand.name}}</span>
+                </ng-template>
+              </p-pickList>
+            </p-tabPanel>
+            <p-tabPanel header="Executivo de Negócios">
+              <div class="p-fluid grid form-group">
+                <div class="field col">
+                  <label for="partnerSearch" class="formTitle">Buscar <span class="text-danger">*</span></label>
+                  <div class="input-group-clear">
+                    <input id="sellerSearch" type="text" pInputText placeholder="Nome do Executivo"
+                      [(ngModel)]="sellerSearch.person.name" name="search" class="w-full" />
+                    <a (click)="resetSellerSearchName()" *ngIf="sellerSearch.person.name"><i class="pi pi-times"></i></a>
+                  </div>
+                </div>
+                <div class="md:col-2 mt-3 pt-3">
+                  <button type="button" label="Pesquisar" icon="fa fa-search" class="p-element p-button p-component mr-3" pButton (click)="fillSeller()"></button>
+                </div>
+              </div>
+              <p-pickList [source]="sellerAvailableList" [target]="sellerSelectedList" [responsive]="true"
+                [showSourceControls]="false" [showTargetControls]="false"
+                sourceHeader="Selecionar Executivo de Negócios" targetHeader="Executivos de Negócios Selecionados">
+                <ng-template let-seller pTemplate="item">
+                  <span>{{seller.person.name}} ({{seller.job.name}})</span>
+                </ng-template>
+              </p-pickList>
+            </p-tabPanel>
+          </p-tabView>
+          <div class="col-12 flex flex-row justify-content-end py-0">
+            <button type="button" label="Cancelar" icon="fa fa-ban"
+              class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="modelRegister.id" pButton
+              (click)="resetRegisterForm()"></button>
+            <button type="button" label="Excluir" icon="fa fa-trash-o"
+              class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="modelRegister.id" pButton
+              (click)="remove(modelRegister)"></button>
+            <button type="button" label="Novo" icon="fa fa-file-o" pButton
+              class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm()"></button>
+            <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"
+              [disabled]="partnerRegisterForm.invalid"></button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <p-dialog header="Adicionar Pessoa" [(visible)]="displayEmployeeModal" [modal]="true"
+    [style]="{width: '50%', height: '40rem'}" [closeOnEscape]="false"
+    [baseZIndex]="10000" [draggable]="true" [resizable]="true">
+
+    <wbp-person-tab [(personRegister)]="employeeRegister.person"
+      [identification]="true" [contact]="true" [bank]="true" [address]="true"
+      [modal]="true" (onComplete)="closeEmployeeModal($event)" (cancelModal)="cancelEmployeeModal()"></wbp-person-tab>
+  </p-dialog>
+</div>

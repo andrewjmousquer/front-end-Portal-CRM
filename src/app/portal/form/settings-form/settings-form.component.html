@@ -1,0 +1,107 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="col-12">
+      <div class="card card-w-title">
+        <div class="grid">
+          <div class="col-12 lg:col-3">
+            <p-fieldset legend="Unidade Padrão" [toggleable]="true">
+              <div class="field">
+                <p-dropdown [options]="customerList" [(ngModel)]="customerDefault" name="customerList"
+                  placeholder="Cliente padrão" dataKey="id" optionLabel="name"
+                  (ngModelChange)="changeDefaultCustomer($event)" [showClear]="false" required></p-dropdown>
+              </div>
+            </p-fieldset>
+          </div>
+          <div class="col-12 lg:col-6">
+            <p-fieldset legend="Alteração de Senha" [toggleable]="true">
+              <div class="p-fluid grid form-group">
+                <div class="col-12 md:col-6 field">
+                  <label for="float-input">Senha</label>
+                  <input type="password" pPassword [(ngModel)]="password" name="registerPassword" autocomplete="off" />
+                </div>
+                <div class="col-12 md:col-6 field">
+                  <label for="float-input">Repetir senha</label>
+                  <input type="password" pPassword [(ngModel)]="confirmPassword" name="registerConfirmPassword"
+                    autocomplete="off" value="" />
+                </div>
+              </div>
+            </p-fieldset>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="col-12 lg:col-3">
+            <p-fieldset legend="Cor do Topo" [toggleable]="true">
+              <ul class="settings-menu">
+                <li *ngFor="let item of topBars; let i = index;">
+                  <a (click)="[changeTopbarColor(item.class)];">
+                    <i class="{{item.icon}}"></i>
+                    <span class="topbar-item-name">{{item.label}}</span>
+                  </a>
+                </li>
+              </ul>
+            </p-fieldset>
+          </div>
+          <div class="col-12 lg:col-3">
+            <p-fieldset legend="Tema" [toggleable]="true">
+              <ul class="settings-menu">
+                <li *ngFor="let item of themes; let i = index;">
+                  <a (click)="[this.changeTheme(item.tema) ];">
+                    <i class="{{item.icon}}"></i>
+                    <span class="topbar-item-name">{{item.label}}</span>
+                  </a>
+                </li>
+              </ul>
+            </p-fieldset>
+          </div>
+          <div class="col-12 lg:col-2">
+            <p-fieldset legend="Estilo do menu" [toggleable]="true">
+              <ul class="settings-menu">
+                <li *ngFor="let item of layouts; let i = index;">
+                  <a (click)="[this.changeMenuStyle(item.menuMode)];">
+                    <i class="{{item.icon}}"></i>
+                    <span class="topbar-item-name">{{item.label}}</span>
+                  </a>
+                </li>
+              </ul>
+            </p-fieldset>
+          </div>
+          <div class="col-12 lg:col-2">
+            <p-fieldset legend="Cor do Menu" [toggleable]="true">
+              <ul class="settings-menu">
+                <li *ngFor="let item of menuColors; let i = index;">
+                  <a (click)="[this.changeMenuColor(item.light)];">
+                    <i class="{{item.icon}}"></i>
+                    <span class="topbar-item-name">{{item.label}}</span>
+                  </a>
+                </li>
+              </ul>
+            </p-fieldset>
+          </div>
+        </div>
+        <!--
+        <div class="col-12">
+          <div class="col-12 lg:col-2">
+            <p-fieldset legend="Idioma" [toggleable]="true">
+              <ul class="settings-menu">
+                <li *ngFor="let item of languages; let i = index;">
+                  <a (click)="[this.changeLanguage(item.language)];" >
+                    <img src="{{item.image}}" class="flag-language">
+                    <span class="topbar-item-name">{{item.label}}</span>
+                  </a>
+                </li>
+              </ul>
+            </p-fieldset>
+          </div>
+        </div>
+        -->
+        <div class="col-12">
+          <div class="col-12 lg:col-10">
+          </div>
+          <div class="col-12 lg:col-2">
+            <button type="button" label="Salvar" icon="fa fa-save" pButton (click)="saveUserConfig()"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

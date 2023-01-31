@@ -1,0 +1,67 @@
+<div class="field" [class]="classField">
+  <label *ngIf="label" [for]="name" class="formTitle">
+    {{label}}
+    <span *ngIf="required" class="text-danger">*</span>
+  </label>
+
+  <div [ngClass]="{'p-inputgroup': addonLeft || addonRight, 'field-input-switch': type == 'switch'}">
+    <span *ngIf="addonLeft" class="p-inputgroup-addon">{{addonLeft}}</span>
+
+    <p-dropdown *ngIf="type == 'dropdown'" appendTo='body' class="w-full" [id]="name" [options]="options"
+      [autoDisplayFirst]="autoDisplayFirst" [name]="name" [(ngModel)]="model" [optionLabel]="optionLabel"
+      [required]="required" [filter]="filter && options && options.length > showFilterOn" [placeholder]="placeholder"
+      [dataKey]="dataKey" [showClear]="showClear" (onChange)="onModelChange(model)" [disabled]="disabled"
+      [optionDisabled]="optionDisabled">
+    </p-dropdown>
+
+    <p-multiSelect *ngIf="type == 'multiSelect'" [(ngModel)]="model" [options]="options" [name]="name"
+      [optionLabel]="optionLabel" [dataKey]="dataKey" [showHeader]="showHeader" [required]="required"
+      [showClear]="showClear" [placeholder]="placeholder" [filter]="filter && options && options.length > showFilterOn"
+      (onChange)="onModelChange(model)" [disabled]="disabled">
+    </p-multiSelect>
+
+    <input *ngIf="type == 'text'" [id]="name" type="text" pInputText [(ngModel)]="model" [name]="name"
+      autocomplete="off" [pattern]="pattern" [placeholder]="placeholder || ''" [maxlength]="maxlength"
+      (change)="onModelChange(model)" [disabled]="disabled" [reandoly]="reandoly" [required]="required"/>
+
+    <p-inputNumber *ngIf="type == 'decimal'" [id]="name" [name]="name" [(ngModel)]="model" [mode]="type"
+      [disabled]="disabled" [readonly]="readonly" [placeholder]="placeholder"
+      (onInput)="onModelChange($event.value)" (onBlur)="onBlurDecimal()" [minFractionDigits]="minFractionDigits"
+      [maxFractionDigits]="maxFractionDigits" [required]="required" [max]="max" [min]="min">
+    </p-inputNumber>
+
+    <p-inputNumber *ngIf="type == 'number'" [id]="name" [name]="name" [(ngModel)]="model"
+      [disabled]="disabled" [readonly]="readonly" [required]="required" [placeholder]="placeholder"
+      (onInput)="onModelChange($event.value)" (onBlur)="onBlurDecimal()"
+      [useGrouping]="false" [maxlength]="maxlength" [max]="max" [min]="0" allowEmpty="true">
+    </p-inputNumber>
+
+    <p-inputMask *ngIf="type == 'mask'" [mask]="mask"  [id]="name" [(ngModel)]="model"
+      [disabled]="disabled" [readonly]="readonly" [name]="name" [required]="required"
+      [autoClear]="false" [unmask]="unmask" [placeholder]="placeholder"
+      (onInput)="onModelChange($event)" (onComplete)="onModelComplete($event)"
+      (onKeydown)="onModelKeydown($event)" (onClear)="onModelClear($event)">
+    </p-inputMask>
+
+    <input *ngIf="type == 'keyFilter'" type="text" [pKeyFilter]="keyFilter" [id]="name" [name]="name"
+      [(ngModel)]="model" (change)="onModelChange(model)" pInputText
+      [placeholder]="placeholder" [disabled]="disabled" [reandoly]="reandoly" [required]="required">
+
+    <p-calendar *ngIf="type == 'calendar'" [id]="name" [name]="name" [(ngModel)]="model"
+      [showButtonBar]="showButtonBar" [showIcon]="showIcon" dateFormat="dd/mm/yy" yearRange="2000:2100"
+      [monthNavigator]="monthNavigator" [yearNavigator]="yearNavigator" [placeholder]="placeholder"
+      [disabled]="disabled" appendTo='body' (onSelect)="onModelChange(model)"
+      (onInput)="onModelChange(model)" [maxDate]="maxDate" [minDate]="minDate">
+    </p-calendar>
+
+    <p-inputSwitch *ngIf="type == 'switch'" [id]="name" [name]="name" [(ngModel)]="model" class="input-switch-component"
+      (onChange)="onModelChange(model)" [disabled]="disabled">
+    </p-inputSwitch>
+
+    <p-checkbox *ngIf="type == 'checkbox'" [inputId]="name" [name]="name" [(ngModel)]="model"
+      (onChange)="onModelChange(model)" [binary]="binary" [disabled]="disabled">
+    </p-checkbox>
+
+    <span *ngIf="addonRight" class="p-inputgroup-addon">{{addonRight}}</span>
+  </div>
+</div>

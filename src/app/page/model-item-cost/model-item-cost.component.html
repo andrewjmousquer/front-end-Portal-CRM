@@ -1,0 +1,504 @@
+<div class="ui-flui">
+    <div class="grid">
+      <div class="col-6">
+        <div class="card no-margin" [style]="{'height':'100%'}">
+          <form #modelItemCostSearchForm="ngForm" (ngSubmit)="search($event)">
+            <h5>Busca de Custo por Modelo e Item</h5>
+            <div class="p-fluid grid form-group">
+                <div class="md:col-3 field mb-0" >
+                    <label for="searchItem"><strong>Item</strong></label>
+                    <p-dropdown [options]="itemListGlobal" filter="true" [autoDisplayFirst]="false" [(ngModel)]="itemSearch" 
+                        [showClear]="true" name="searchItem" dataKey="id" optionDisabled="false" optionLabel="name" 
+                        (onChange)="itemSearchChanged($event)">
+                    </p-dropdown>
+                </div>
+                <div class="md:col-3 field mb-0">
+                    <label for="searchBrand"><strong>Marca</strong></label>
+                    <p-dropdown [options]="brandListSearch" filter="true" [autoDisplayFirst]="false" [(ngModel)]="brandSearch" 
+                        [showClear]="true" name="searchBrand" dataKey="id" optionDisabled="false" optionLabel="name" 
+                        (onChange)="brandSearchChanged($event)" 
+                        [disabled]="itemSearch?.generic">
+                    </p-dropdown>
+                </div>
+                <div class="md:col-3 field mb-0">
+                    <label for="searchModel"><strong>Modelo</strong></label>
+                    <p-dropdown [options]="modelListSearch" filter="true" [autoDisplayFirst]="false" [(ngModel)]="modelSearch"
+                        [showClear]="true" name="searchModel" dataKey="id" optionDisabled="false" optionLabel="name"
+                        [disabled]="itemSearch?.generic">
+                    </p-dropdown>
+                </div>
+                <div class="md:col-3 field mb-0">
+                    <label for="searchDate"><strong>Data</strong></label>
+                    <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" [(ngModel)]="dateSearch"
+                            placeholder="00/00/0000" dateFormat="dd/mm/yy" yearRange="2015:2030" name="searchDate">
+                    </p-calendar>
+                </div>
+                <div class="md:col-6 field py-0 my-0"></div>
+                <div class="md:col-3 field py-0 my-0">
+                    <button type="button" label="Limpar" icon="fa fa-ban" class="p-button-outlined p-button-light" 
+                    pButton (click)="initSearchForm(false)"></button>
+                </div>
+                <div class="md:col-3 field py-0 mt-0 mb-5">          
+                    <button type="submit" label="Buscar" icon="" class="p-element p-button p-component" pButton></button>
+                </div>
+            </div>
+            <div class="md:col-12">
+              <p-table #dt [columns]="dataTableColumns" [value]="modelItemCostList" dataKey="id" [style]="{'margin-bottom':'20vw'}"
+                [responsive]="true" selectionMode="multiple" [(selection)]="modelItemCostEditList"
+                [rows]="10" [showCurrentPageReport]="false" [paginator]="true"
+                [scrollable]="true" [resizableColumns]="false" (selectionChange)="onSelectionChange()">
+                <ng-template pTemplate="caption">
+                    <div class="md:col-12" >
+                        <button type="button" label="Período" icon="fa fa-calendar"
+                                class="p-button-outlined p-button-secondary mr-3 md:w-7rem" pButton
+                                (click)="openAdjustementPeriodDialog()" [disabled]="modelItemCostEditList.length == 0"></button>
+                        <button type="button" label="Valores" icon="fa fa-usd"
+                                class="p-button-outlined p-button-secondary mr-3 md:w-7rem" pButton
+                                (click)="openAdjustementPriceDialog()" [disabled]="modelItemCostEditList.length == 0"></button>
+                        <button type="button" label="Duplicar" icon="fa fa-files-o"
+                                class="p-button-outlined p-button-secondary mr-3 md:w-7rem" pButton
+                                (click)="openDuplicationDialog()" [disabled]="modelItemCostEditList.length == 0"></button>
+                    </div>
+                </ng-template>
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th style="flex: inherit;">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field" >
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr >
+                    <td style="flex: inherit;">
+                        <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.brand != null ? rowData.brand.name : 'TODAS'}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.itemModel != null && rowData.itemModel.model != null ? rowData.itemModel.model.name : 'TODOS'}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.item.name}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.itemModel != null ? formatModelYear( rowData.itemModel.modelYearStart, rowData.itemModel.modelYearEnd ) : 'TODOS'}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{(rowData.startDate | date: 'dd/MM/yyyy') + ' - ' + (rowData.endDate | date: 'dd/MM/yyyy')}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.price | currency:'BRL'}}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" style="text-align:left">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </form>
+        </div>
+      </div>
+  
+      <!-- FORMULÁRIO -->
+      <div class="col-6">
+        <div class="card no-margin" [style]="{'height':'100%'}">
+            <h5>Cadastro de Custo por Modelo e Item</h5>
+            <div class="grid form-group">
+              <div class="md:col-12">
+                <form #modelItemCostRegisterForm="ngForm" (ngSubmit)="save()" novalidate>
+                    <div class="p-fluid grid form-group">
+                        <div class="md:col-12 field">
+                            <label for="item" class="formTitle">Item <span class="text-danger">*</span></label>
+                            <p-dropdown [options]="itemListGlobal" filter="true" [autoDisplayFirst]="false" [(ngModel)]="itemRegister"
+                                [showClear]="true" name="item" dataKey="id" optionDisabled="false" optionLabel="name"
+                                (onChange)="itemRegisterChanged($event)" placeholder="Selecione um Item"
+                                required></p-dropdown>  
+                        </div>
+                        <div class="md:col-6 field">
+                            <label for="brand" class="formTitle">Marca <span class="text-danger" 
+                                *ngIf="!itemRegister?.generic && !modelItemCostRegister.allBrands">*</span></label>
+                            <p-dropdown [options]="brandListRegister" filter="true" [autoDisplayFirst]="false" [(ngModel)]="brandRegister"
+                                [showClear]="false" name="brand" dataKey="id" optionDisabled="false" optionLabel="name" 
+                                (onChange)="brandRegisterChanged($event)" placeholder="Selecione uma Marca" 
+                                [required]="!itemRegister?.generic && !modelItemCostRegister.allBrands"
+                                [disabled]="itemRegister?.generic || modelItemCostRegister.allBrands" ></p-dropdown>
+                        </div>
+                        <div class="field col-6" >
+                            <label for="allBrandsOption" class="formTitle">Todas as Marcas</label>
+                            <div class="field-input-switch">
+                                <p-inputSwitch [(ngModel)]="modelItemCostRegister.allBrands" name="allBrandsOption" class="input-switch-component" 
+                                    [disabled]="itemRegister?.generic" (onChange)="allBrandsOptionChanged(modelItemCostRegister.allBrands)">
+                                </p-inputSwitch>
+                            </div>
+                        </div>
+                        <div class="md:col-6 field">
+                            <label for="model" class="formTitle">Modelo <span class="text-danger"
+                                *ngIf="!itemRegister?.generic && !modelItemCostRegister.allBrands && !modelItemCostRegister.allModels">*</span></label>
+                            <p-dropdown [options]="modelListRegister" filter="true" [autoDisplayFirst]="false" [(ngModel)]="modelRegister" 
+                                [showClear]="false" name="model" dataKey="id" optionDisabled="false" optionLabel="name" 
+                                (onChange)="modelRegisterChanged($event)" placeholder="Selecione um Modelo"
+                                [disabled]="itemRegister?.generic || modelItemCostRegister.allBrands || modelItemCostRegister.allModels"
+                                [required]="!itemRegister?.generic && !modelItemCostRegister.allBrands"></p-dropdown>
+                        </div>
+                        <div class="field col-6" >
+                            <label for="allModelsOption" class="formTitle">Todos os Modelos</label>
+                            <div class="field-input-switch">
+                                <p-inputSwitch [(ngModel)]="modelItemCostRegister.allModels" name="allModelsOption" class="input-switch-component"
+                                    [disabled]="itemRegister?.generic || modelItemCostRegister.allBrands" (onChange)="allModelsOptionChanged(modelItemCostRegister.allModels)">
+                                </p-inputSwitch>
+                            </div>
+                        </div>
+                        <div class="md:col-6 field">
+                            <label for="modelYearRange" class="formTitle">Faixa Ano Modelo <span class="text-danger"
+                                *ngIf="!itemRegister?.generic && !modelItemCostRegister.allBrands && !modelItemCostRegister.allModels">*</span></label>
+                            <p-dropdown [options]="modelYearRangeList" filter="true" [autoDisplayFirst]="false" [(ngModel)]="modelYearRangeRegister" 
+                                [showClear]="false" name="modelYearRange" dataKey="id" appendTo="body" 
+                                placeholder="Selecione uma Faixa Ano Modelo"
+                                [disabled]="itemRegister?.generic || modelItemCostRegister.allBrands || modelItemCostRegister.allModels"
+                                [required]="!itemRegister?.generic && !modelItemCostRegister.allBrands && !modelItemCostRegister.allModels">
+                                <ng-template pTemplate="selectedItem">
+                                <div *ngIf="modelYearRangeRegister">
+                                    {{formatModelYear( modelYearRangeRegister.modelYearStart, modelYearRangeRegister.modelYearEnd )}}
+                                </div>
+                                </ng-template>
+                                <ng-template let-item pTemplate="item">
+                                    {{formatModelYear( item.modelYearStart, item.modelYearEnd )}}
+                                </ng-template>
+                            </p-dropdown>
+                        </div>
+                        <div class="md:col-6 field"></div>
+                        <div class="md:col-6 field">
+                            <label for="startDate" class="formTitle">Período Início <span class="text-danger">*</span></label>
+                            <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" [(ngModel)]="modelItemCostRegister.startDate"
+                                placeholder="00/00/0000" dateFormat="dd/mm/yy" yearRange="2015:2030" name="startDate" required (onSelect)="validateEndDate()">
+                            </p-calendar>
+                        </div>
+                        <div class="md:col-6 field">
+                            <label for="endDate" class="formTitle">Período Fim <span class="text-danger">*</span></label>
+                            <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" [(ngModel)]="modelItemCostRegister.endDate"
+                                placeholder="00/00/0000" dateFormat="dd/mm/yy" yearRange="2015:2030" name="endDate" [minDate]="modelItemCostRegister.startDate" required>
+                            </p-calendar>
+                        </div>
+                        <div class="md:col-6 field">
+                            <label for="price" class="formTitle">Total <span class="text-danger">*</span></label>
+                            <div class="p-inputgroup">
+                                <span class="p-inputgroup-addon">R$</span>
+                                <p-inputNumber [(ngModel)]="modelItemCostRegister.price" mode="decimal" name="price"
+                                    [minFractionDigits]="2" [maxFractionDigits]="2" required>
+                                </p-inputNumber>
+                            </div>
+                        </div>
+                        <div class="md:col-6 field"></div>
+                        <div class="md:col-6 field py-0 my-0" *ngIf="modelItemCostRegister.id">
+                            <button type="button" label="Cancelar" icon="fa fa-ban"
+                                class="p-button-outlined p-button-light field" pButton
+                                (click)="initRegisterForm()" (click)="cancelEdit()"></button>
+                        </div>
+                        <div class="md:col-6 field py-0 my-0" *ngIf="modelItemCostRegister.id">
+                            <button type="button" label="Excluir" icon="fa fa-trash-o"
+                                class="p-button-outlined p-button-danger field" pButton
+                                (click)="remove(modelItemCostRegister)"></button>
+                        </div>
+                        <div class="md:col-6 field py-0 my-0" *ngIf="modelItemCostRegister.id">
+                            <button type="button" label="Duplicar" icon="fa fa-files-o"
+                                class="p-button-outlined p-button-secondary field" pButton
+                                (click)="duplicar()"></button>
+                        </div>
+                        <div class="md:col-6 field py-0 my-0" *ngIf="!modelItemCostRegister.id">
+                            <button type="button" label="Novo" icon="fa fa-file-o" pButton
+                                class="p-button-outlined p-button-secondary field" 
+                                (click)="initRegisterForm()"></button>
+                        </div>
+                        <div class="md:col-6 field py-0 my-0">
+                            <button type="submit" label="Salvar" icon="fa fa-save" pButton
+                                [disabled]="modelItemCostRegisterForm.invalid"></button>
+                        </div>
+                    </div>
+                </form>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- DIALOG EDITAR PERÍODOS -->
+<p-dialog header="" [(visible)]="showAdjustementPeriodDialog" [modal]="true"
+[style]="{minWidth: '30vw', minHeight: '30vh'}" [draggable]="true" [resizable]="false" [closable]="false"
+(onShow)="initDialogs(false)">
+    <p-tabView>
+        <p-tabPanel header="Editar Períodos">
+            <form #adjustementPeriodDialogForm="ngForm" novalidate>
+                <div class="p-fluid grid form-group">
+                    <div class="md:col-6 p-fluid field ">
+                        <label for="startDate" class="formTitle">Período Início</label>
+                        <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" [(ngModel)]="modelItemCostAdjustementDialog.startDate"
+                            placeholder="00/00/0000" dateFormat="dd/mm/yy" yearRange="2015:2030" name="startDate" (onSelect)="validateEndDateDialog()"
+                            appendTo="body" required>
+                        </p-calendar>
+                    </div>
+                    <div class="md:col-6 p-fluid field ">
+                        <label for="endDate" class="formTitle">Período Fim</label>
+                        <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" [(ngModel)]="modelItemCostAdjustementDialog.endDate"
+                            placeholder="00/00/0000" dateFormat="dd/mm/yy" yearRange="2015:2030" name="endDate" [minDate]="modelItemCostAdjustementDialog.startDate"
+                            appendTo="body" required>
+                        </p-calendar>
+                    </div>
+                </div>
+            </form>
+            <ng-template pTemplate="footer">
+                <button type="button" label="Cancelar" class="p-button-outlined p-button-light mr-3 md:w-16rem" pButton
+                    (click)="initDialogs(true)"></button>
+                <button type="button" label="Aplicar" class="md:w-15rem" pButton (click)="validateAdjustment(false)"
+                    [disabled]="adjustementPeriodDialogForm.form.invalid"></button>
+            </ng-template>
+        </p-tabPanel>
+        <p-tabPanel header="Registros com Erros" *ngIf="showValidateTab">
+            <div class="md:col-12 py-0 mb-3" style="text-align: center;">
+                <p-message severity="error" 
+                    text="Não foi possível realizar a operação! Os registros abaixo violam os períodos já existentes para seus respectivos Itens e Modelos. ">
+                </p-message>
+            </div>
+            <p-table #dt [columns]="dataTableColumns" [value]="modelItemCostErrorList" dataKey="id"
+                [responsive]="true" [rows]="5" [showCurrentPageReport]="false" [paginator]="true"
+                [scrollable]="true" [resizableColumns]="false">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field" >
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns" >
+                  <tr>
+                    <td style=" text-align: center;">
+                        {{rowData.brand != null ? rowData.brand.name : 'TODAS'}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.itemModel != null && rowData.itemModel.model != null ? rowData.itemModel.model.name : 'TODOS'}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.item.name}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.itemModel != null ? formatModelYear( rowData.itemModel.modelYearStart, rowData.itemModel.modelYearEnd ) : 'TODOS'}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{(rowData.startDate | date: 'dd/MM/yyyy') + ' - ' + (rowData.endDate | date: 'dd/MM/yyyy')}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.price | currency:'BRL'}}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" style="text-align:left">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+            </p-table>
+        </p-tabPanel>
+    </p-tabView>
+</p-dialog>
+
+<!-- DIALOG EDITAR VALORES -->
+<p-dialog header="Editar Valores" [(visible)]="showAdjustementPriceDialog" [modal]="true"
+[style]="{minWidth: '30vw', minHeight: '40vh'}" [draggable]="true" [resizable]="false" [closable]="false"
+(onShow)="initDialogs(false)">
+    <form #adjustementPriceDialogForm="ngForm" novalidate>
+        <div class="ui-fluid">
+            <div class="p-fluid">
+            <label class="formTitle">Ação</label>
+            <div class="flex flex-row">
+                <div class="col-6 field-radiobutton">
+                <p-radioButton name="action" value="adjust" [(ngModel)]="modelItemCostAdjustementDialog.action"
+                    (onClick)="actionChanged()" inputId="adjust" required selected></p-radioButton>
+                <label for="adjust">Ajustar</label>
+                </div>
+                <div class="col-6 field-radiobutton ">
+                <p-radioButton name="action" value="reset" [(ngModel)]="modelItemCostAdjustementDialog.action"
+                    (onClick)="actionChanged()" inputId="reset" required></p-radioButton>
+                <label for="reset">Redefinir</label>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="ui-fluid">
+            <div class="p-fluid">
+            <label class="formTitle">Ajuste</label>
+            <div class="flex flex-row">
+                <div class="col-6 field-radiobutton">
+                <p-radioButton name="adjustement" value="percent" [(ngModel)]="modelItemCostAdjustementDialog.adjustement"
+                    (onClick)="adjustementChanged()" [disabled]="modelItemCostAdjustementDialog.action == 'reset'" inputId="percent" 
+                    required selected>
+                </p-radioButton>
+                <label for="percent">Porcentagem</label>
+                </div>
+                <div class="col-6 field-radiobutton">
+                <p-radioButton name="adjustement" value="monetary" [(ngModel)]="modelItemCostAdjustementDialog.adjustement"
+                    (onClick)="adjustementChanged()" inputId="monetary" required></p-radioButton>
+                <label for="monetary">Monetário</label>
+                </div>
+            </div>
+            </div>
+        </div>
+        <div class="p-fluid field">
+            <label for="fldTableValue" class="formTitle">Valor<span class="text-danger">*</span></label>
+            <div class="p-inputgroup" *ngIf="modelItemCostAdjustementDialog.adjustement == 'monetary'">
+            <span class="p-inputgroup-addon">R$</span>
+            <p-inputNumber id="fldTableValue" name="fldTableValue" [(ngModel)]="modelItemCostAdjustementDialog.monetaryValue"
+                mode="currency" currency="BRL" locale="pt-BR" required></p-inputNumber>
+            </div>
+            <div class="p-inputgroup" *ngIf="modelItemCostAdjustementDialog.adjustement == 'percent'">
+            <p-inputNumber id="fldTableValue" name="fldTableValue" [(ngModel)]="modelItemCostAdjustementDialog.percentValue"
+                locale="pt-BR" mode="decimal" [maxFractionDigits]="2" required></p-inputNumber>
+            <span class="p-inputgroup-addon">%</span>
+            </div>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <button type="button" label="Cancelar" class="p-button-outlined p-button-light mr-3 md:w-9rem" pButton
+            (click)="initDialogs(true)"></button>
+        <button type="button" label="Aplicar" class="md:w-10rem" pButton (click)="saveAdjustementPrice()"
+            [disabled]="adjustementPriceDialogForm.form.invalid"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- DIALOG DUPLICAR -->
+<p-dialog header="" [(visible)]="showDuplicationDialog" [modal]="true"
+[style]="{minWidth: '30vw', minHeight: '50vh'}" [draggable]="true" [resizable]="false" [closable]="false"
+(onShow)="initDialogs(false)">
+    <p-tabView>
+        <p-tabPanel header="Duplicar">
+            <form #duplicationDialogForm="ngForm" novalidate>
+                <div class="ui-fluid">
+                    <div class="p-fluid">
+                    <label class="formTitle">Ação</label>
+                    <div class="flex flex-row">
+                        <div class="col-6 field-radiobutton">
+                        <p-radioButton name="action" value="adjust" [(ngModel)]="modelItemCostAdjustementDialog.action"
+                            (onClick)="actionChanged()" inputId="adjust" required></p-radioButton>
+                        <label for="adjust">Ajustar</label>
+                        </div>
+                        <div class="col-6 field-radiobutton ">
+                        <p-radioButton name="action" value="reset" [(ngModel)]="modelItemCostAdjustementDialog.action"
+                            (onClick)="actionChanged()" inputId="reset" required></p-radioButton>
+                        <label for="reset">Redefinir</label>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div class="ui-fluid">
+                    <div class="p-fluid">
+                    <label class="formTitle">Ajuste</label>
+                    <div class="flex flex-row">
+                        <div class="col-6 field-radiobutton">
+                        <p-radioButton name="adjustement" value="percent" [(ngModel)]="modelItemCostAdjustementDialog.adjustement"
+                            (onClick)="adjustementChanged()" [disabled]="modelItemCostAdjustementDialog.action == 'reset'" inputId="percent" 
+                            required>
+                        </p-radioButton>
+                        <label for="percent">Porcentagem</label>
+                        </div>
+                        <div class="col-6 field-radiobutton">
+                        <p-radioButton name="adjustement" value="monetary" [(ngModel)]="modelItemCostAdjustementDialog.adjustement"
+                            (onClick)="adjustementChanged()" inputId="monetary" required></p-radioButton>
+                        <label for="monetary">Monetário</label>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                <div class="p-fluid field">
+                    <label for="fldTableValue" class="formTitle">Valor<span class="text-danger">*</span></label>
+                    <div class="p-inputgroup" *ngIf="modelItemCostAdjustementDialog.adjustement == 'monetary'">
+                    <span class="p-inputgroup-addon">R$</span>
+                    <p-inputNumber id="fldTableValue" name="fldTableValue" [(ngModel)]="modelItemCostAdjustementDialog.monetaryValue"
+                        mode="currency" currency="BRL" locale="pt-BR" required></p-inputNumber>
+                    </div>
+                    <div class="p-inputgroup" *ngIf="modelItemCostAdjustementDialog.adjustement == 'percent'">
+                    <p-inputNumber id="fldTableValue" name="fldTableValue" [(ngModel)]="modelItemCostAdjustementDialog.percentValue"
+                        locale="pt-BR" mode="decimal" [maxFractionDigits]="2" required></p-inputNumber>
+                    <span class="p-inputgroup-addon">%</span>
+                    </div>
+                </div>
+                <div class="p-fluid grid form-group">
+                    <div class="md:col-6 p-fluid field ">
+                        <label for="startDate" class="formTitle">Período Início</label>
+                        <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" [(ngModel)]="modelItemCostAdjustementDialog.startDate"
+                            placeholder="00/00/0000" dateFormat="dd/mm/yy" yearRange="2015:2030" name="startDate" (onSelect)="validateEndDateDialog()"
+                            appendTo="body" required>
+                        </p-calendar>
+                    </div>
+                    <div class="md:col-6 p-fluid field ">
+                        <label for="endDate" class="formTitle">Período Fim</label>
+                        <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" [(ngModel)]="modelItemCostAdjustementDialog.endDate"
+                            placeholder="00/00/0000" dateFormat="dd/mm/yy" yearRange="2015:2030" name="endDate" [minDate]="modelItemCostAdjustementDialog.startDate"
+                            appendTo="body" required>
+                        </p-calendar>
+                    </div>
+                </div>
+            </form>
+            <ng-template pTemplate="footer">
+                <button type="button" label="Cancelar" class="p-button-outlined p-button-light mr-3 md:w-16rem" pButton
+                    (click)="initDialogs(true)"></button>
+                <button type="button" label="Aplicar" class="md:w-15rem" pButton (click)="validateAdjustment(true)"
+                    [disabled]="duplicationDialogForm.form.invalid"></button>
+            </ng-template>
+        </p-tabPanel>
+        <p-tabPanel header="Registros com Erros" *ngIf="showValidateTab">
+            <div class="md:col-12 py-0 mb-3" style="text-align: center;">
+                <p-message severity="error" 
+                    text="Não foi possível realizar a operação! Os registros abaixo violam os períodos já existentes para seus respectivos Itens e Modelos. ">
+                </p-message>
+            </div>
+            <p-table #dt [columns]="dataTableColumns" [value]="modelItemCostErrorList" dataKey="id"
+                [responsive]="true" [rows]="5" [showCurrentPageReport]="false" [paginator]="true"
+                [scrollable]="true" [resizableColumns]="false">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field" >
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns" >
+                  <tr>
+                    <td style=" text-align: center;">
+                        {{rowData.brand != null ? rowData.brand.name : 'TODAS'}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.itemModel != null && rowData.itemModel.model != null ? rowData.itemModel.model.name : 'TODOS'}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.item.name}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.itemModel != null ? formatModelYear( rowData.itemModel.modelYearStart, rowData.itemModel.modelYearEnd ) : 'TODOS'}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{(rowData.startDate | date: 'dd/MM/yyyy') + ' - ' + (rowData.endDate | date: 'dd/MM/yyyy')}}
+                    </td>
+                    <td style=" text-align: center;">
+                        {{rowData.price | currency:'BRL'}}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" style="text-align:left">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+            </p-table>
+        </p-tabPanel>
+    </p-tabView>
+</p-dialog>
+  

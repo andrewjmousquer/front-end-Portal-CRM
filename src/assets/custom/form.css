@@ -1,0 +1,133 @@
+/* fields */
+label {
+  color: #242629;
+}
+
+.label {
+  font-style: strong;
+  color: #242629;
+}
+
+
+.field-input-switch {
+  display: flex;
+  height: 2.25rem;
+}
+
+.field-input-switch .input-switch-component {
+  display: flex;
+  align-items: center;
+}
+
+/* botoes */
+.p-button {
+  background: #0288D1;
+  border: 1px solid #0288D1;
+}
+
+.p-button.p-button-secondary.p-button-outlined,
+.p-buttonset.p-button-secondary>.p-button.p-button-outlined,
+.p-splitbutton.p-button-secondary>.p-button.p-button-outlined {
+  color: #0288D1;
+}
+
+.p-button.p-button-light {
+  color: #626262;
+}
+
+.p-button.p-button-danger {
+  background-color: rgb(211, 27, 27);
+}
+
+.p-button.p-button-success {
+  background-color: rgb(7, 131, 7);
+}
+
+.p-button-icon-max {
+  max-width: 2.5rem;
+}
+
+/* picklist */
+.p-picklist .p-picklist-list {
+  height: 25rem;
+}
+
+.p-picklist-20 .p-picklist .p-picklist-list {
+  height: 21.7rem;
+}
+
+[ng-reflect-readonly="true"] > div,
+:disabled:not(button),
+[readonly] {
+  background-color: #f0eeee;
+}
+
+.p-confirm-dialog-reject {
+  background: #ffffff;
+  color: #626262;
+  border: 1px solid #626262;
+}
+
+.p-confirm-dialog-reject:hover {
+  background: #ffffff !important;
+  color: #98BED7 !important;
+  border: 1px solid #98BED7 !important;
+}
+
+/* p-tabview */
+.p-tabview-px-0 .p-tabview-panels {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.input-group-clear {
+  position: relative;
+}
+
+.input-group-clear a {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.2rem;
+  height: 2rem;
+  width: 2rem;
+  text-align: center;
+  line-height: 2.3rem;
+}
+
+.input-group-clear a,
+.input-group-clear a * {
+  cursor: pointer;
+}
+
+/* list-descript */
+.list-descript p {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+p-badge {
+  overflow: hidden;
+}
+
+/* erros */
+input.ng-touched.ng-invalid.p-inputtext {
+  border-color: #f44336;
+}
+
+.footer-buttons-modal {
+  background: #fff;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  padding: 1rem;
+  bottom: 0px;
+}
+
+.p-inputnumber input {
+  text-align: right;
+}
+
+/* multiselect */
+.p-multiselect-panel .p-multiselect-header .p-multiselect-close {
+  display: none;
+}

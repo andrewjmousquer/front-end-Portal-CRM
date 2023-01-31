@@ -1,0 +1,29 @@
+.align-center {
+    text-align: center;
+}
+
+.align-left {
+    text-align: left;
+}
+
+.table-item {
+    text-align: left;
+    font-size: smaller;
+}
+
+.multiselect-empty {
+    color: #f4f4f4;
+}
+
+.btn-filter-group {
+    display: flex;
+    flex-direction: row;
+    justify-content: right;
+    align-content: flex-end;
+}
+
+.icon-export {
+    font-size: x-large;
+    cursor: pointer;
+    margin-right: 4px;
+}

@@ -1,0 +1,69 @@
+.proposal-header-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.proposal-customer-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.pdf-content {
+  font-size: 2.5mm;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+.pdf-content table th,
+.pdf-content table td {
+  text-align: center;
+  padding: 0.3rem;
+  border: 1px solid #e9ecef;
+  border-width: 0 0 1px 0;
+  text-overflow: ellipsis;
+  overflow-y: hidden;
+  word-break: break-word;
+}
+
+.pdf-content table th {
+  font-weight: 600;
+  color: #495057;
+  background: #f8f9fa;
+}
+
+.pdf-content table {
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+:host>>>.pdf-content .p-datatable-thead tr th,
+:host>>>.pdf-content .p-datatable-tbody tr td,
+:host>>>.pdf-content .p-datatable-tfoot tr td {
+  padding: 0.4rem;
+}
+
+:host>>>.pdf-content .p-datatable table,
+.pdf-content h5,
+.pdf-content dt,
+.pdf-content dd {
+  font-size: 2.5mm;
+  table-layout: fixed;
+}
+
+.pdf-content h5 {
+  font-size: 1.5em;
+}
+
+/* 
+:host>>>.p-datatable-thead tr th,
+:host>>>.p-datatable-tbody tr td {
+  white-space:nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+} */

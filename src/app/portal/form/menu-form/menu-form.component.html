@@ -1,0 +1,114 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="col-12 lg:col-5">
+      <div class="card no-margin">
+        <form #menuSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Menu</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field col">
+              <label for="Identification">Buscar</label>
+              <input id="input" type="text" pInputText placeholder="Busque pelo nome" [(ngModel)]="menuSearch.name"
+                name="search" />
+            </div>
+            <div class="md:col-3 mt-3 pt-3">
+              <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+            </div>
+            <div class="col-12 md:col-12">
+              <p-table #dt [columns]="cols" [value]="menuList" dataKey="id" [style]="{'margin-bottom':'20px'}"
+                [responsive]="true" selectionMode="single" [(selection)]="menuRegister" (onRowSelect)="edit($event)"
+                [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true" [resizableColumns]="true">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr [pSelectableRow]="rowData">
+                    <td>
+                      {{rowData.name}}
+                    </td>
+                    <td>
+                      {{rowData.type.value}}
+                    </td>
+                    <td>
+                      {{rowData.route}}
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col-12 lg:col-7">
+      <div class="card no-margin">
+        <form #menuRegisterForm="ngForm" (ngSubmit)="save()" novalidate>
+          <h5>Cadastro de Menu</h5>
+          <div class="p-fluid grid form-group">
+            <div class="col-12 md:col-6 field">
+              <label for="float-input">Nome <span class="text-danger">*</span></label>
+              <input id="input" type="text" pInputText [(ngModel)]="menuRegister.name" name="registerName" required
+                autocomplete="off" />
+            </div>
+            <div class="col-12 md:col-4 field">
+              <label for="float-input">Tipo <span class="text-danger">*</span></label>
+              <p-dropdown [options]="menuTypeList" filter="true" [autoDisplayFirst]="false"
+                [(ngModel)]="menuRegister.type" name="registerType" dataKey="id" optionLabel="value" [showClear]="false"
+                required (ngModelChange)="onChangeMenuType($event)" placeholder=""></p-dropdown>
+            </div>
+            <div class="col-12 md:col-2 f field">
+              <label for="showMenu" class="formTitle">Exibir</label>
+              <div class="field-input-switch">
+                <p-inputSwitch [(ngModel)]="menuRegister.show" name="showMenu" class="input-switch-component">
+                </p-inputSwitch>
+              </div>
+            </div>
+          </div>
+          <div class="p-fluid grid form-group">
+            <div class="col-12 md:col-6 field">
+              <label for="float-input">Caminho</label>
+              <input id="input" type="text" pInputText [(ngModel)]="menuRegister.route" name="registerRoute" />
+            </div>
+            <div class="col-12 md:col-6 field">
+              <label for="float-input">Ícone</label>
+              <input id="input" type="text" pInputText [(ngModel)]="menuRegister.icon" name="registerIcon" />
+            </div>
+          </div>
+          <div class="p-fluid grid form-group">
+            <div class="col-12 md:col-6 field" [hidden]="!isProduct">
+              <label for="float-input">Menu pai</label>
+              <p-dropdown [options]="menuRootList" [(ngModel)]="menuRegister.root" name="registerMenuRootType"
+                dataKey="id" optionLabel="name" [showClear]="true" [autoDisplayFirst]="false" placeholder="">
+              </p-dropdown>
+            </div>
+            <div class="col-12 md:col-6 field" [hidden]="!isProduct">
+              <label for="float-input">Descrição</label>
+              <input id="input" type="text" pInputText [(ngModel)]="menuRegister.description"
+                name="registerDescription" />
+            </div>
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="button" label="Cancelar" icon="fa fa-ban"
+                class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="menuRegister.id" pButton
+                (click)="resetRegisterForm()"></button>
+              <button type="button" label="Excluir" icon="fa fa-trash-o"
+                class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="menuRegister.id" pButton
+                (click)="remove(menuRegister)"></button>
+              <button type="button" label="Novo" icon="fa fa-file-o" pButton
+                class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm()"></button>
+              <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"
+                [disabled]="menuRegisterForm.invalid"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

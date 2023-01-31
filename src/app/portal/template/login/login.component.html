@@ -1,0 +1,65 @@
+<div class="login-body">
+  <div class="login-topbar">
+    <span class="app-title">Carbon</span>
+  </div>
+  <div class="separator"></div>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="login-panel pt-5">
+      <h5>LOGIN</h5>
+      <p>Bem vindo, use o formulário para logar-se.</p>
+      <div class="input-wrapper">
+        <label for="username">Username</label>
+        <input type="text" autocomplete="off" class="ui-inputtext ui-widget" id="loginFormUser"
+          formControlName="username">
+      </div>
+      <div class="input-wrapper">
+        <label for="password">Password</label>
+        <input type="password" autocomplete="off" id="loginFormPassword" formControlName="password"
+          class="ui-inputtext ui-widget">
+      </div>
+      <button type="submit" label="Login" icon="fa fa-external-link" pButton></button>
+      <div class="input-wrapper">
+        <label><small>{{envinromentName}} - VERSÃO {{version}} - DATA {{versionDate}}</small></label>
+      </div>
+      <p>
+        <p-messages [value]="msgs"></p-messages>
+      </p>
+    </div>
+  </form>
+</div>
+
+<iframe [src]="jasperLogoutURL" class="jasper-logout-iframe"></iframe>
+
+<p-dialog [(visible)]="showExpiredPasswordDialog" modal="modal" showEffect="fade" [closeOnEscape]="false"
+  [closable]="false" [draggable]="false" appendTo="body">
+  <div class="p-fluid grid form-group expired-password-dialog">
+    <form #expiredPasswordForm="ngForm" class="expired-password-form">
+      <h3 style="margin-block-end: 0;">Senha Expirada</h3>
+      <p>Por favor cadastre uma nova senha!</p>
+
+      <div class="p-fluid grid form-group">
+        <div class="col-12 field">
+          <label for="float-input">Senha</label>
+          <input type="password" pPassword [(ngModel)]="expirePasswordForm.password" name="registerPassword"
+            autocomplete="off" />
+        </div>
+        <div class="col-12 field">
+          <label for="float-input">Repetir senha</label>
+          <input type="password" pPassword [(ngModel)]="expirePasswordForm.confirmPassword"
+            name="registerConfirmPassword" autocomplete="off" value="" />
+        </div>
+      </div>
+    </form>
+  </div>
+  <p>
+    <p-messages [value]="expiredPasswordMessages"></p-messages>
+  </p>
+
+  <p-footer>
+    <div class="col-12 flex flex-row justify-content-end py-0">
+      <button pButton icon="fa fa-times" (click)="cancelChangePassword()" label="Cancelar"
+        class="p-button-outlined p-button-light mr-3 md:w-10rem"></button>
+      <button pButton icon="fa fa-check" (click)="changePassword()" label="Salvar" class="md:w-10rem"></button>
+    </div>
+  </p-footer>
+</p-dialog>

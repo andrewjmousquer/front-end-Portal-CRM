@@ -1,0 +1,97 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="md:col-5 mb-3">
+      <div class="card no-margin">
+        <form #bankSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Banco</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field col">
+              <label for="Identification" class="formTitle">Buscar</label>
+              <div class="input-group-clear">
+                <input id="input" type="text" pInputText placeholder="Nome do Banco" [(ngModel)]="bankSearch.name"
+                  name="search" />
+                <a (click)="resetSearchForm()" *ngIf="bankSearch.name"><i class="pi pi-times"></i></a>
+              </div>
+            </div>
+            <div class="md:col-3 mt-3 pt-3">
+              <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+            </div>
+          </div>
+
+          <p-table #dt [columns]="cols" [value]="bankList" dataKey="id" [style]="{'margin-bottom':'20px'}"
+            [responsive]="true" selectionMode="single" [(selection)]="bankRegister" (onRowSelect)="edit($event)"
+            (onRowUnselect)="resetRegisterForm()"  [resizableColumns]="true"
+            [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true">
+            <ng-template pTemplate="header" let-columns>
+              <tr>
+                <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}">
+                  {{col.header}}
+                  <p-sortIcon [field]="col.field"></p-sortIcon>
+                </th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+              <tr [pSelectableRow]="rowData">
+                <td>
+                  {{rowData.name}}
+                </td>
+                <td>
+                  {{rowData.code}}
+                </td>
+                <td>
+                  {{rowData.active == true ? 'Ativo' : 'Inativo'}}
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </form>
+      </div>
+    </div>
+    <div class="md:col-7">
+      <div class="card no-margin">
+        <form #bankRegisterForm="ngForm" (ngSubmit)="save()">
+          <h5>Cadastro de Banco</h5>
+          <div class="p-fluid p-formgrid grid">
+            <!-- <wbp-field label="Nome" (ngModel)="bankRegister.name"></wbp-field> -->
+
+            <div class="field col-12 md:col-6">
+              <label for="name" class="formTitle">Nome <span class="text-danger">*</span></label>
+              <input id="name" type="text" pInputText [(ngModel)]="bankRegister.name" name="registerName"
+                autocomplete="off" required />
+            </div>
+
+            <div class="field col-12 md:col-3">
+              <label for="brand" class="formTitle">Codigo <span class="text-danger">*</span></label>
+               <input id="code" type="text" pInputText [(ngModel)]="bankRegister.code" name="registerCode"
+                autocomplete="off" required />
+
+            </div>
+            <div class="field col-12 md:col-3">
+              <label for="status" class="formTitle">Situação <span class="text-danger">*</span></label>
+              <p-dropdown id="status" [options]="statusList" [(ngModel)]="selectedStatus" name="status"
+                optionLabel="name" [showClear]="false" required>
+              </p-dropdown>
+            </div>
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="button" label="Cancelar" icon="fa fa-ban"
+                class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="bankRegister.id" pButton
+                (click)="resetRegisterForm()"></button>
+              <button type="button" label="Excluir" icon="fa fa-trash-o"
+                class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="bankRegister.id" pButton
+                (click)="remove(bankRegister)"></button>
+              <button type="button" label="Novo" icon="fa fa-file-o" pButton
+                class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm()"></button>
+              <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"
+                [disabled]="bankRegisterForm.invalid"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

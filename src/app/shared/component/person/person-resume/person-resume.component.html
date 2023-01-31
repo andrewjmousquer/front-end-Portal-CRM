@@ -1,0 +1,132 @@
+<div>
+  <div *ngIf="!personRegister.id" class="flex flex-column align-items-center justify-content-center p-5">
+    <i class="fa fa-folder-open-o fa-3x opacity-40 mb-2"></i>
+    <p class="align-items-center justify-content-center pb-5">
+      <i>Pessoa ainda não informada!</i>
+    </p>
+  </div>
+
+  <div *ngIf="personRegister.id" class="card">
+    <div class="list-descript">
+      <strong>Identificação</strong>
+      <hr class="my-1" />
+      <div>
+        <p *ngIf="personClassifierEnum.legal != personRegister.classification.value">
+          <strong>Nome:</strong> {{personRegister?.name}}
+        </p>
+        <p *ngIf="personClassifierEnum.legal == personRegister.classification.value">
+          <strong>Nome Fantasia:</strong> {{personRegister?.name}}
+        </p>
+        <p *ngIf="personClassifierEnum.legal == personRegister.classification.value">
+          <strong>Razão Social:</strong> {{personRegister?.corporateName}}
+        </p>
+        <p>
+          <strong>Tipo:</strong> {{personRegister.classification.label}}
+        </p>
+        <p>
+          <span *ngIf="personClassifierEnum.physical == personRegister.classification.value">
+            <strong>CPF:</strong> {{personRegister.cpf | cpf}}
+          </span>
+          <span *ngIf="personClassifierEnum.legal == personRegister.classification.value">
+            <strong>CNPJ:</strong> {{personRegister.cnpj | cnpj}}
+          </span>
+          <span *ngIf="personClassifierEnum.foreign == personRegister.classification.value">
+            <strong>RNE:</strong> {{personRegister.rne}}
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div class="list-descript mt-5">
+      <strong>Contato</strong>
+      <hr class="my-1" />
+      <div>
+        <p *ngFor="let contact of personRegister.contacts">
+          <strong>{{contact.type.value | titlecase}}:</strong> {{showContact(contact)}}
+        </p>
+        <p *ngIf="!personRegister.contacts?.length"><i>Nenhum contato adicionado.</i></p>
+      </div>
+    </div>
+
+    <div class="list-descript mt-5">
+      <strong>Dados Bancários</strong>
+      <hr class="my-1" />
+      <div *ngFor="let bankAccount of personRegister.bankAccount">
+        <p>
+          <strong>Banco:</strong> {{bankAccount.bank?.name}}
+        </p>
+        <p>
+          <strong>Agência:</strong> {{bankAccount.agency}}
+        </p>
+        <p>
+          <strong>Conta:</strong> {{bankAccount.accountNumber}}
+        </p>
+        <p>
+          <strong>Tipo de Conta:</strong> {{bankAccount.type | titlecase}}
+        </p>
+        <p *ngIf="bankAccount.pixKey">
+          <strong>PIX:</strong> {{bankAccount.pixKey}}
+        </p>
+      </div>
+      <p *ngIf="!personRegister.bankAccount?.length"><i>Nenhum banco adicionado.</i></p>
+    </div>
+
+    <div class="list-descript mt-5">
+      <strong>Endereço</strong>
+      <hr class="my-1" />
+      <div *ngIf="personRegister.address">
+        <p>
+          <strong>Endereço:</strong> {{personRegister.address?.street}} {{personRegister.address?.number}}
+        </p>
+        <div class="grid">
+          <div class="col-8"  *ngIf="personRegister.address.complement">
+            <p>
+              <strong>Complemento:</strong> {{personRegister.address?.complement}}
+            </p>
+          </div>
+          <div class="col-4">
+            <p>
+              <strong>CEP:</strong> {{personRegister.address?.zipCode | cep}}
+            </p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="col-4">
+            <p>
+              <strong>Cidade:</strong> {{personRegister.address?.city?.name}}
+            </p>
+          </div>
+          <div class="col-4">
+            <p>
+              <strong>Estado:</strong> {{personRegister.address?.city?.state?.name}}
+            </p>
+          </div>
+          <div class="col-4">
+            <p>
+              <strong>País:</strong> {{personRegister.address?.city?.state?.country?.name | titlecase}}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="list-descript mt-4">
+      <strong>Relacionados</strong>
+      <hr class="mt-1 mb-3" />
+      <div class="mt-3 mb-4" *ngFor="let personRelated of personRegister.personRelated">
+        <p>
+          <strong>Nome: </strong> {{personRelated.name}}
+        </p>
+        <p>
+          <strong>Relacionamento: </strong> {{personRelated.relatedType.value}}
+        </p>
+        <p>
+          <strong>Data de Nascimento: </strong> {{personRelated.birthdate | date:'dd/MM/yyyy' }}
+        </p>
+      </div>
+
+      <p *ngIf="!personRegister.personRelated?.length"><i>Nenhum relacionado adicionado.</i></p>
+    </div>
+  </div>
+</div>

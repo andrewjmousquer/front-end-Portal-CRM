@@ -1,0 +1,108 @@
+<div class="ui-fluid">
+    <div class="grid">
+        <div class="col-12 lg:col-12">
+            <div class="card no-margin">
+                <form #productRegisterForm="ngForm" novalidate>
+                    <h5>Cadastro de Qualificação</h5>
+                    <div class="p-fluid p-formgrid">
+
+                        <div class="grid">
+                            <div class="col-12 flex flex-row justify-content-end">
+                                <button type="button" label="Expandir Todos" icon="fa fa-plus-square-o" pButton class="p-button-outlined p-button-light mr-3 md:w-12rem" (click)="expandAll()"></button>
+                                <button type="button" label="Recolher Todos" icon="fa fa-minus-square-o" pButton class="p-button-outlined p-button-light mr-3 md:w-12rem" (click)="collapseAll()"></button>
+                            </div>
+                        </div>
+
+                        <p-treeTable #tt [value]="$qualificationTreePromise | async" [columns]="treeCols" dataKey="id"
+                                    [scrollable]="true" scrollHeight="600px" 
+                                    (onNodeExpand)="onNodeExpand($event)" (onNodeCollapse)="onNodeCollapse($event)"
+                                    styleClass="p-treetable-sm">
+                                    
+                            <ng-template pTemplate="header" let-columns>
+                                <tr>
+                                    <th *ngFor="let col of columns" [style.width]="col.width">
+                                        {{col.header}}
+                                    </th>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+                                <tr>
+                                    <td [style.width]="columns[0].width">
+                                        <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                                        {{rowData.name}}
+                                    </td>
+                                    <td [style.width]="columns[1].width">
+                                        {{ (rowData.childrens ? rowData.childrens.length : 0 )}}
+                                    </td>
+                                    <td [style.width]="columns[2].width">
+                                        {{ (rowData.required ? 'Sim' : 'Não' ) }}
+                                    </td>
+                                    <td [style.width]="columns[3].width">
+                                        {{ (rowData.active ? 'Sim' : 'Não' ) }}
+                                    </td>
+                                    <td [style.width]="columns[4].width" style="text-align: center;">
+                                        <button pButton pRipple type="button" icon="fa fa-plus" class="p-button-rounded p-button-success mr-1" (click)="newNodeDialog( rowNode )"></button>
+                                        <button pButton pRipple type="button" icon="fa fa-pencil" class="p-button-rounded p-button-warning mr-1" (click)="editNodeDialog( rowNode )"></button>
+                                        <button pButton pRipple type="button" icon="fa fa-trash" class="p-button-rounded p-button-danger mr-1" (click)="removeChild( rowNode )"></button>
+                                        <button pButton pRipple type="button" icon="fa fa-arrow-up" class="p-button-rounded mr-1" 
+                                                (click)="move( rowNode, 'UP' )"></button>
+                                        <button pButton pRipple type="button" icon="fa fa-arrow-down" class="p-button-rounded mr-1" 
+                                                (click)="move( rowNode, 'DOWN' )"></button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                            <ng-template pTemplate="emptymessage">
+                                <tr>        
+                                    <td [attr.colspan]="treeCols.length">Não existem dados</td>
+                                </tr>
+                            </ng-template>
+                        </p-treeTable>
+                    </div>
+
+                    <div class="col-12 flex flex-row justify-content-end py-5">
+                        <button type="button" label="Novo" icon="fa fa-file-o" pButton class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="newNodeDialog( null )"></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-dialog header="Qualificação" [(visible)]="displayNodeFormDialog" [modal]="true" [style]="{width: '20vw', height: '35%'}"
+          [draggable]="true" [resizable]="false" [closable]="false">
+     <form #nodeDialogForm="ngForm" novalidate>
+        <div class="ui-fluid">
+            <div class="p-fluid field">
+                <label class="formTitle">Estrutura:</label>
+                <div class="p-inputgroup">
+                    <span>{{ qualificationParentSelected.getFormatedPath(' > ') }}</span>
+                </div>
+            </div>
+            <div class="p-fluid field">
+                <label for="fldNodeName" class="formTitle">Nome<span class="text-danger">*</span></label>
+                <div class="p-inputgroup">
+                    <input id="fldNodeName" name="fldNodeName" type="text" pInputText [(ngModel)]="newQualificationNode.name"  autocomplete="off" required/>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="col-6 field">
+                    <label for="active" class="formTitle">Ativo</label>
+                    <div class="field-input-switch">
+                        <p-inputSwitch id="active" [(ngModel)]="newQualificationNode.active" name="active" class="input-switch-component"></p-inputSwitch>
+                    </div>
+                </div>
+                <div class="col-6 field">
+                    <label for="active" class="formTitle">Requerido</label>
+                    <div class="field-input-switch">
+                        <p-inputSwitch id="required" [(ngModel)]="newQualificationNode.required" name="required" class="input-switch-component"></p-inputSwitch>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <ng-template pTemplate="footer">
+        <button type="button" label="Cancelar" class="p-button-outlined p-button-light mr-3 md:w-11rem" pButton (click)="closeNodeDialog()" ></button>
+        <button type="button" label="Adicionar" class="md:w-11rem" pButton (click)="saveAndEdit()" [disabled]="nodeDialogForm.form.invalid"></button>
+    </ng-template>
+</p-dialog>

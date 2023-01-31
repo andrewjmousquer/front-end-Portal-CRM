@@ -1,0 +1,94 @@
+<div class="ui-fluid">
+    <div class="grid">
+      <div class="md:col-8">
+        <div class="card no-margin">
+          <form #channelSearchForm="ngForm">
+            <div class="p-fluid grid form-group">
+              <div class="md:col-12">
+                <p-table #dt [value]="followUpList" dataKey="id" [style]="{'margin-bottom':'20px'}"
+                  [responsive]="true" selectionMode="single" [(selection)]="followUpRegister" 
+                  (onRowSelect)="editFup($event)"  (onRowUnselect)="resetRegisterForm()" [resizableColumns]="true"
+                  [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true">
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th pSortableColumn="media.value" [ngStyle]="{'width': '50px'}">Ação<p-sortIcon field="media.value"></p-sortIcon></th>
+                      <th pSortableColumn="date" style="width:100px">Data<p-sortIcon field="date"></p-sortIcon></th>
+                      <th pSortableColumn="person" style=" text-align: center; width: 30%;">Pessoa Contactada<p-sortIcon field="person"></p-sortIcon></th>
+                      <th pSortableColumn="comment" style=" text-align: center; width: 40%;">Detalhamento<p-sortIcon field="comment"></p-sortIcon></th>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="body" let-rowNode let-rowData let-columns="columns">
+                    <tr [pSelectableRow]="rowData">
+                      <td>
+                        {{rowData.media.value}}
+                      </td>
+                      <td>
+                        {{rowData.date | date: 'dd/MM/yyyy HH:mm' : 'UTC -3' }}
+                      </td>
+                      <td>
+                        {{rowData.person}}
+                      </td>
+                      <td>
+                        {{rowData.comment}}
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="col-12 lg:col-4">
+        <div class="card no-margin">
+          <form #followUpRegisterForm="ngForm" (ngSubmit)="save()" novalidate>
+            <div class="p-fluid grid form-group">
+              <div class="col-12 field">
+                <label for="float-input" class="formTitle">Data<span class="text-danger">*</span></label>
+                <p-calendar required name="date" [(ngModel)]="followUpRegister.date"
+                  [showButtonBar]="true" [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy"
+                  [showTime]="true" hourFormat="24"
+                  yearRange="2000:2100"  [required]="true">
+                </p-calendar>
+              </div>
+              <div class="col-12 field">
+                <label for="person" class="formTitle">Pessoa Contactada<span class="text-danger">*</span></label>
+                <input id="person" type="text" pInputText [(ngModel)]="followUpRegister.person" name="registerName"
+                  autocomplete="off" required />
+              </div>
+              <div class="field col-12">
+                <label for="contactType" class="formTitle">Meio de contato<span class="text-danger">*</span></label>
+                <p-dropdown [options]="mediaTypeList" filter="true" [autoDisplayFirst]="false"
+                name="contactType" dataKey="id" optionLabel="label"  [(ngModel)]="mediaTypeSelected"
+                 [showClear]="false" required></p-dropdown>
+              </div>
+              <div class="field col-12">
+                <label for="comment" class="formTitle">Detalhamento</label>
+                <textarea id="comment" rows="3" pInputText  [(ngModel)]="followUpRegister.comment"
+                  name="comment"></textarea>
+              </div>
+              <div class="col-12 flex flex-row justify-content-end py-0">
+                <button type="button" label="Cancelar" icon="fa fa-ban"
+                  class="p-button-outlined p-button-light mr-3 md:w-10rem" pButton
+                  (click)="cancel()"></button>
+                <button type="button" label="Excluir" icon="fa fa-trash-o"
+                  class="p-button-outlined p-button-danger mr-3 md:w-10rem"  *ngIf="isEdit" pButton
+                  (click)="remove()"></button>
+                <button type="button" label="Novo" icon="fa fa-file-o" pButton
+                  class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm()"></button>
+                <button type="submit" label="Adicionar" icon="fa fa-save" pButton class="md:w-10rem" *ngIf="!isEdit"
+                  [disabled]="followUpRegisterForm.invalid"></button>
+                  <button type="submit" label="Atualizar" icon="fa fa-save" pButton class="md:w-10rem" *ngIf="isEdit"
+                  [disabled]="followUpRegisterForm.invalid"></button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

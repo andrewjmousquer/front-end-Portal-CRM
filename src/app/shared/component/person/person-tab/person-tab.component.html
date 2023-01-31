@@ -1,0 +1,316 @@
+<form #personRegisterForm="ngForm" (ngSubmit)="save()" novalidate>
+  <p-tabView class="p-tabview-px-0" [(activeIndex)]="tabViewIndex" (onChange)="tabViewIndex = $event.index">
+    <p-tabPanel *ngIf="resume" header="Resumo">
+      <wbp-person-resume [personRegister]="personRegister"></wbp-person-resume>
+    </p-tabPanel>
+
+    <p-tabPanel *ngIf="identification" header="Identificação">
+      <div class="p-fluid form-group mt-auto">
+        <div class="grid">
+          <div class="col-12">
+            <label for="registerAccessList" class="formTitle">Tipo <span class="text-danger">*</span></label>
+            <div class="grid mt-2">
+              <div *ngFor="let col of personClassificationList" class="col field">
+                <p-radioButton name="classificationtab" [value]="col" [label]="col.label"
+                  [(ngModel)]="personRegister.classification" [inputId]="'classification-' + col.value">
+                </p-radioButton>
+              </div>
+            </div>
+          </div>
+
+          <div class="field col-6"
+            *ngIf="personRegister.classification && personRegister.classification.value == personClassifierEnum.physical">
+            <label for="cpf" class="formTitle" class="formTitle">CPF <span class="text-danger">*</span></label>
+            <p-inputMask [mask]="maskEnum.CPF" [(ngModel)]="personRegister.cpf" name="cpf" maxlength="18" required
+              (onBlur)="loadPerson()">
+            </p-inputMask>
+          </div>
+
+          <div class="field col-6"
+            *ngIf="personRegister.classification && personRegister.classification.value == personClassifierEnum.physical">
+            <label for="rg" class="formTitle" class="formTitle">
+              RG
+            </label>
+            <input name="rg" pInputText [(ngModel)]="personRegister.rg" (onBlur)="loadPerson()">
+          </div>
+
+          <div class="field col-6"
+            *ngIf="personRegister.classification && personRegister.classification.value  == personClassifierEnum.legal">
+            <label for="cnpj" class="formTitle" class="formTitle">
+              CNPJ <span class="text-danger">*</span>
+            </label>
+            <p-inputMask [mask]="maskEnum.CNPJ" [(ngModel)]="personRegister.cnpj" name="cnpj" maxlength="18" required
+              (onBlur)="loadPerson()">
+            </p-inputMask>
+          </div>
+
+          <div class="field col-6"
+            *ngIf="personRegister.classification && personRegister.classification.value  == personClassifierEnum.legal">
+            <label for="ie" class="formTitle" class="formTitle">
+              Inscrição Estadual
+            </label>
+            <input name="ie" pInputText [(ngModel)]="personRegister.ie" (onBlur)="loadPerson()">
+          </div>
+
+          <div class="field col-6"
+            *ngIf="personRegister.classification && personRegister.classification.value == personClassifierEnum.foreign">
+            <label for="rne" class="formTitle" class="formTitle">RNE <span class="text-danger">*</span></label>
+            <input name="rne" id="rne" type="text" pInputText [(ngModel)]="personRegister.rne" autocomplete="off"
+              maxlength="45" required (blur)="loadPerson()" />
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field col-6">
+            <label for="name" class="formTitle"
+              *ngIf="personRegister.classification && personRegister.classification.value  !== personClassifierEnum.legal">
+              Nome <span class="text-danger">*</span></label>
+            <label for="name" class="formTitle"
+              *ngIf="personRegister.classification && personRegister.classification.value  === personClassifierEnum.legal">
+              Nome Fantasia<span class="text-danger">*</span></label>
+            <input name="name" id="name" type="text" pInputText [(ngModel)]="personRegister.name" autocomplete="off"
+              required />
+          </div>
+          <div class="field col-2" *ngIf="negativeList">
+            <label for="negativeList" class="formTitle">Lista Negativa</label>
+            <div class="field-input-switch">
+              <p-inputSwitch [(ngModel)]="isNegativeList" name="negativeList" class="input-switch-component">
+              </p-inputSwitch>
+            </div>
+          </div>
+          <div class="field col-4" *ngIf="isNegativeList && negativeList">
+            <label for="negativeListReason" class="formTitle">Motivo</label>
+            <p-dropdown id="negativeListReason" [options]="negativeListList" [autoDisplayFirst]="false"
+              [(ngModel)]="personRegister.negativeList" name="negativeListReason" dataKey="id" optionLabel="value"
+              [showClear]="false">
+            </p-dropdown>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="field col-6"
+            *ngIf="personRegister.classification && personRegister.classification.value  == personClassifierEnum.legal">
+            <label for="corporateName" class="formTitle">Razão Social</label>
+            <input name="corporateName" id="corporateName" type="text" pInputText
+              [(ngModel)]="personRegister.corporateName" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <!-- Qualificações -->
+      <div>Qualifications: {{personRegister.qualifications | json}}</div>
+      <wbp-qualification [qualifications]="personRegister.qualifications"></wbp-qualification>
+
+    </p-tabPanel>
+
+    <p-tabPanel *ngIf="contact" header="Contato">
+      <wbp-contact [(componentContactList)]="contactList" [componentContact]="contactRegister"
+        (refreshContactList)="refreshContactList($event)" [horizontal]="true"></wbp-contact>
+    </p-tabPanel>
+
+    <p-tabPanel *ngIf="bank" header="Dados Bancários">
+      <div class="p-fluid form-group mt-auto">
+        <div class="grid">
+          <div class="field col">
+            <label for="bank" class="formTitle">Banco</label>
+            <p-dropdown id="bank" filter="true" [options]="bankList" [autoDisplayFirst]="false"
+              [(ngModel)]="bankAccountRegister.bank" name="bank" optionLabel="name" [showClear]="false">
+            </p-dropdown>
+          </div>
+
+          <wbp-field class="col" type="keyFilter" [keyFilter]="regExpEnum.AGENCY" name="agency" label="Agência"
+            [(model)]="bankAccountRegister.agency"></wbp-field>
+
+          <wbp-field class="col" type="keyFilter" [keyFilter]="regExpEnum.ACCOUNT" name="accountNumber" label="Conta"
+            [(model)]="bankAccountRegister.accountNumber"></wbp-field>
+        </div>
+        <div class="grid">
+          <div class="field col-4">
+            <label for="accountType" class="formTitle">Tipo de Conta</label>
+            <p-dropdown id="accountType" filter="true" [options]="accountTypeList" [(ngModel)]="selectedAccountType"
+              name="accountType" optionLabel="value" [showClear]="false" [autoDisplayFirst]="false">
+            </p-dropdown>
+          </div>
+          <div class="field col-4">
+            <button type="button" label="Adicionar" icon="fa fa-plus" pButton
+              class="p-button-outlined p-button-secondary md:w-10rem mt-4" (click)="saveBank()"></button>
+          </div>
+        </div>
+
+        <p-table #dt [columns]="colsBank" [value]="personRegister.bankAccount" dataKey="accountNumber"
+          [responsive]="true" selectionMode="single" [(selection)]="bankAccountRegister" [resizableColumns]="true"
+          (onRowSelect)="editBank($event)" (onRowUnselect)="resetBankRegisterForm()" [rows]="10"
+          [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true">
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                {{col.header}}
+                <p-sortIcon [field]="col.field"></p-sortIcon>
+              </th>
+              <th class="column-small"></th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr [pSelectableRow]="rowData">
+              <td>{{rowData.bank.name}}</td>
+              <td>{{rowData.agency}}</td>
+              <td>{{rowData.accountNumber}}</td>
+              <td>{{rowData.type | titlecase}}</td>
+              <td class="justify-content-end column-small">
+                <button pButton type="button" class="p-button p-button-rounded p-button-danger" icon="pi pi-trash"
+                  (click)="removeBank(rowData)"></button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="8" style="text-align:left">Sem registros encontrados</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </p-tabPanel>
+
+    <p-tabPanel *ngIf="address" header="Endereço">
+      <div class="p-fluid form-group mt-auto">
+        <div class="grid">
+          <div class="field col">
+            <label for="zipCode" class="formTitle">CEP</label>
+            <p-inputMask [mask]="maskEnum.CEP" [(ngModel)]="personRegister.address.zipCode" name="zipCode" id="zipCode"
+              maxlength="18" (onBlur)="loadAddressByCep()"></p-inputMask>
+          </div>
+          <div class="field col">
+            <label for="street" class="formTitle">Endereço</label>
+            <input name="street" id="street" type="text" pInputText [(ngModel)]="personRegister.address.street"
+              autocomplete="off" readonly />
+          </div>
+          <div class="field col">
+            <label for="number" class="formTitle">Número</label>
+            <input id="number" type="text" pInputText [(ngModel)]="personRegister.address.number" name="number"
+              autocomplete="off" />
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field col">
+            <label for="city" class="formTitle">Cidade</label>
+            <p-dropdown id="city" filter="true" [options]="cityList" [autoDisplayFirst]="false"
+              [(ngModel)]="personRegister.address.city" name="city" optionLabel="name" [showClear]="false"
+              [readonly]="readonlyCity">
+            </p-dropdown>
+          </div>
+          <div class="field col">
+            <label for="state" class="formTitle">Estado</label>
+            <p-dropdown id="state" filter="true" [options]="stateList" [autoDisplayFirst]="false"
+              [(ngModel)]="personRegister.address.city.state" name="state" optionLabel="name" [showClear]="false"
+              [readonly]="readonlyState" (onChange)="loadCity()">
+            </p-dropdown>
+          </div>
+          <div class="field col">
+            <label for="country" class="formTitle">País</label>
+            <p-dropdown id="country" filter="true" [options]="countryList" [autoDisplayFirst]="false"
+              [(ngModel)]="personRegister.address.city.state.country" name="country" optionLabel="name"
+              [showClear]="false" (onChange)="loadState()" [readonly]="readonlyCountry">
+            </p-dropdown>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="field col col-4">
+            <label for="complement" class="formTitle">Complemento</label>
+            <input name="complement" id="complement" type="text" pInputText
+              [(ngModel)]="personRegister.address.complement" autocomplete="off" />
+          </div>
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <p-tabPanel *ngIf="related" header="Relacionados">
+      <div class="p-fluid form-group mt-auto">
+        <div class="grid">
+          <div class="field col">
+            <label for="relatedName" class="formTitle">Nome</label>
+            <input name="relatedName" id="relatedName" type="text" pInputText [(ngModel)]="personRelatedRegister.name"
+              autocomplete="off" />
+          </div>
+          <div class="field col">
+            <label for="relatedType" class="formTitle">Relacionamento</label>
+            <p-dropdown id="relatedType" filter="true" [options]="personRelatedTypeList"
+              [(ngModel)]="personRelatedRegister.relatedType" name="relatedType" optionLabel="label" [showClear]="false"
+              [autoDisplayFirst]="false" dataKey="id">
+            </p-dropdown>
+          </div>
+          <div class="field col">
+            <label for="" class="formTitle">Data de Nascimento</label>
+            <p-calendar name="relatedBirthdate" [(ngModel)]="personRelatedRegister.birthdate" [showButtonBar]="true"
+              [monthNavigator]="true" placeholder="" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy"
+              yearRange="2000:2100" [locale]="locale">
+            </p-calendar>
+          </div>
+          <div class="field col pt-5">
+            <button type="button" label="Adicionar" icon="fa fa-plus" pButton
+              class="p-button-outlined p-button-secondary" (click)="saveRelated()"></button>
+          </div>
+        </div>
+      </div>
+
+      <p-table #dtmodel [columns]="colsRelated" [value]="personRegister.personRelated" dataKey="name" styleClass="mb-5"
+        [responsive]="true" selectionMode="single" [(selection)]="personRelatedRegister" [resizableColumns]="true"
+        (onRowSelect)="editRelated($event)" [rows]="10" [showCurrentPageReport]="false" [paginator]="true"
+        [scrollable]="true">
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th pSortableColumn="name">Nome<p-sortIcon field="name"></p-sortIcon>
+            </th>
+            <th pSortableColumn="relatedType.value">Relacimanento<p-sortIcon field="relatedType.value"></p-sortIcon>
+            </th>
+            <th pSortableColumn="birthdate">Data de aniversário<p-sortIcon field="birthdate"></p-sortIcon>
+            </th>
+            <th class="trashModel column-small">
+              <p></p>
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-columns="columns">
+          <tr [pSelectableRow]="rowData">
+            <td>
+              {{rowData.name}}
+            </td>
+            <td>
+              {{rowData.relatedType.label}}
+            </td>
+            <td>
+              {{rowData.birthdate | date:'dd/MM/yyyy'}}
+            </td>
+            <td class="justify-content-end trashModel column-small">
+              <button pButton type="button" class="p-button p-button-rounded p-button-danger" icon="pi pi-trash"
+                (click)="removeRelated(rowIndex)"></button>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-tabPanel>
+  </p-tabView>
+
+  <div [ngClass]="{'footer-buttons-modal': modal}">
+    <div class="col-12 flex flex-row justify-content-end p-0">
+      <button type="button" label="Cancelar" icon="fa fa-ban" class="p-button-outlined p-button-light mr-3 md:w-10rem"
+        *ngIf="personRegister.id && !modal" pButton (click)="resetRegisterForm(true)"></button>
+
+      <button type="button" label="Cancelar" icon="fa fa-ban" class="p-button-outlined p-button-light mr-3 md:w-10rem"
+        *ngIf="modal" pButton (click)="cancel()"></button>
+
+      <button type="button" label="Excluir" icon="fa fa-trash-o"
+        class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="personRegister.id && !modal" pButton
+        (click)="remove(personRegister)"></button>
+
+      <button type="button" label="Novo" icon="fa fa-file-o" pButton
+        class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm(true)"></button>
+      <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"></button>
+    </div>
+  </div>
+</form>

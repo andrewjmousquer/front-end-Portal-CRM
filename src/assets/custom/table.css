@@ -1,0 +1,14 @@
+.table-border-none th,
+.table-border-none td {
+  border: none !important;
+}
+
+.table-header-not-color th {
+  background-color: transparent !important;
+}
+
+.table-bold th,
+.table-bold td {
+  font-weight: bold;
+}
+

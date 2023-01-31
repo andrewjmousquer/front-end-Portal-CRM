@@ -1,0 +1,217 @@
+<div class="mb-5">
+  <div class="col-12 pt-3">
+    <h5 class="mb-0">Comissão Externa</h5>
+    <hr class="mt-1" />
+  </div>
+
+  <div class="grid mb-5">
+    <div class="col-5 p-datatable p-datatable-sm">
+      <table class="p-datatable-table table-border-none table-bold">
+        <tbody class="p-datatable-tbody">
+          <tr>
+            <td></td>
+            <td class="text-right">Total</td>
+            <td class="text-right">Aplicado</td>
+            <td class="text-right">Saldo</td>
+          </tr>
+          <tr>
+            <td>Comissão:</td>
+            <td class="text-right">{{proposalCommissionValue | currency : 'R$' }}</td>
+            <td class="text-right">{{proposalTotalCommissionValue | currency : 'R$' }}</td>
+            <td class="text-right">{{proposalRemainingCommisionBalance | currency : 'R$' }}</td>
+          </tr>
+          <tr>
+            <td>Bonus:</td>
+            <td class="text-right"></td>
+            <td class="text-right">{{proposalTotalBonusValue | currency : 'R$' }}</td>
+            <td class="text-right"></td>
+          </tr>
+          <tr>
+            <td>Paga Prêmio:</td>
+            <td class="text-right"></td>
+            <td class="text-right">{{proposalTotalPayPrizeValue | currency : 'R$' }}</td>
+            <td class="text-right"></td>
+          </tr>
+          <tr>
+            <td>Valor Total:</td>
+            <td class="text-right"></td>
+            <td class="text-right">{{proposalTotalValue | currency : 'R$' }}</td>
+            <td class="text-right"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="grid mb-5" *ngIf="editable">
+    <div class="col-12 flex flex-row justify-content-end py-0">
+      <button type="button" label="Adicionar" icon="fa fa-plus"
+        class="p-button-outlined p-button-secondary mr-3 md:w-14rem" pButton (click)="addComission()"></button>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="col">
+      <p-table #dt [columns]="cols" dataKey="id" [rows]="7" [responsive]="true" [style]="{'margin-bottom':'20px'}"
+        selectionMode="single" [value]="listCommission" [scrollable]="true" [resizableColumns]="true"
+        [showCurrentPageReport]="false" [paginator]="true">
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}">
+              {{col.header}}
+              <p-sortIcon [field]="col.field"></p-sortIcon>
+            </th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr [pSelectableRow]="rowData" style=" text-align: center;">
+            <td>{{rowData.partnerPerson?.personType?.label}}</td>
+            <td>{{rowData.partnerPerson?.person?.name}}</td>
+            <td>{{rowData.value | currency : 'R$'}}</td>
+            <td>{{rowData.dueDate ? (rowData.dueDate | date:'dd/MM/YYYY') : '-' }}</td>
+            <td>{{rowData.commissionType.label}}</td>
+            <td>{{rowData.bankAccount.label}}</td>
+            <td>{{rowData.notes}}</td>
+
+            <td *ngIf="editable" class="flex flex-row justify-content-end">
+              <button pButton type="button" class="p-button p-button-rounded p-button-success m-1" icon="fa fa-pencil"
+                (click)="edit(rowData)"></button>
+              <button pButton type="button" class="p-button p-button-rounded p-button-danger m-1" icon="fa fa-trash"
+                (click)="remove(rowData)"></button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<p-dialog header="Cadastro Comissionado" [(visible)]="displayModal" [modal]="true" (onHide)="closeModal()"
+  [closeOnEscape]="false" [baseZIndex]="10000" [draggable]="true" [resizable]="true" class="modal-large">
+  <form #formRegister="ngForm" (ngSubmit)="save()" novalidate>
+    <div class="p-fluid grid form-group">
+      <div class="field col">
+        <label for="user" class="formTitle">Nome<span class="text-danger">*</span></label>
+        <div class="flex">
+          <p-dropdown id="selectedEmployee" filter="true" [options]="employeeList" [(ngModel)]="selectedEmployee"
+            name="selectedEmployee" optionLabel="person.name"  dataKey="person.id" class="w-full"
+            [autoDisplayFirst]="false" [showClear]="false" (onChange)="loadPersonDetail()" required>
+          </p-dropdown>
+          <wbp-person-modal  class="ml-2" [(personRegister)]="selectedEmployee.person" [disabled]="!selectedEmployee.person.id"></wbp-person-modal>
+        </div>
+      </div>
+      <div class="field col">
+        <label for="name" class="formTitle">Dados Bancários <span class="text-danger">*</span></label>
+        <p-dropdown id="name" filter="true" [options]="bankAccountList" [(ngModel)]="selectedBankAccount" name="name"
+          optionLabel="label" dataKey="id" [showClear]="false" [disabled]="disableEdit" required>
+        </p-dropdown>
+      </div>
+    </div>
+
+    <div class="p-fluid grid form-group">
+      <div class="md:col-6">
+
+        <div class="field">
+          <label for="type" class="formTitle">Tipo <span class="text-danger">*</span></label>
+          <input id="type" type="text" pInputText [(ngModel)]="selectedEmployee.person.classification.label" name="type"
+            autocomplete="off" disabled />
+        </div>
+
+        <div class="field">
+          <label for="cpf" class="formTitle" class="formTitle">
+            {{selectedEmployee.person.classification ? personDocumentEnum[selectedEmployee.person.classification.value] : 'Documento'}}
+            <span class="text-danger">*</span>
+          </label>
+          <div class="flex">
+            <p-inputMask *ngIf="selectedEmployee.person.classification.value == personClassifierEnum.physical"
+              [mask]="maskEnum.CPF" [(ngModel)]="selectedEmployee.person.cpf" name="cpf" class="w-full" disabled>
+            </p-inputMask>
+
+            <p-inputMask *ngIf="selectedEmployee.person.classification.value == personClassifierEnum.legal"
+              [mask]="maskEnum.CNPJ" [(ngModel)]="selectedEmployee.person.cnpj" name="cnpj" class="w-full" disabled>
+            </p-inputMask>
+
+            <input *ngIf="selectedEmployee.person.classification.value == personClassifierEnum.foreign" name="rne"
+              id="rne" type="text" [(ngModel)]="selectedEmployee.person.rne" pInputText autocomplete="off" disabled />
+          </div>
+        </div>   
+        
+        <div class="field">
+          <label for="employeeType" class="formTitle">Tipo Comissionado <span class="text-danger">*</span></label>
+          <input name="employeeType" id="employeeType" type="text" pInputText
+            [(ngModel)]="selectedEmployee.personType.value" autocomplete="off" disabled />
+        </div>
+
+        <div class="field">
+          <label for="float-input" class="formTitle">Data de vencimento</label>
+          <p-calendar name="flt-end-date" [(ngModel)]="register.dueDate" [showButtonBar]="true" placeholder="00/00/0000"
+            [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy" yearRange="2000:2100"
+            [disabled]="!hasPermissionToSetDueDate">
+          </p-calendar>
+        </div>
+      </div>
+      <div class="md:col-6">
+        <div class="grid">
+          <div class="md:col-4 field field-input-switch pt-3">
+            <p-checkbox name="selectedCommissionCommission" [binary]="true" [(ngModel)]="defaultCommissionChecked"
+              class="mt-5" [disabled]="disableDefaultCommissionCheck"></p-checkbox>
+            <label class="formTitle pt-2 mt-3 ml-3" for="selectedCommissionCommission">Comissão</label>
+          </div>
+          <div class="md:col-8 field">
+            <label for="name" class="formTitle">Valor <span class="text-danger">*</span></label>
+            <div class="p-inputgroup">
+              <span class="p-inputgroup-addon">R$</span>
+              <p-inputNumber id="defaultCommission" name="defaultCommission" [(ngModel)]="defaultCommission"
+                [disabled]="disableDefaultCommission" mode="currency" currency="BRL" locale="pt-BR"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="md:col-4 field field-input-switch pt-3">
+            <p-checkbox name="selectedCommissionPayPrize" [binary]="true" [(ngModel)]="defaultPayPrizeChecked"
+              class="mt-5" [disabled]="disableDefaultPayPrizeCheck"></p-checkbox>
+            <label class="formTitle pt-2 mt-3 ml-3" for="selectedCommissionPayPrize">Paga Prêmio</label>
+          </div>
+          <div class="md:col-8 field">
+            <label for="name" class="formTitle">Valor <span class="text-danger">*</span></label>
+            <div class="p-inputgroup">
+              <span class="p-inputgroup-addon">R$</span>
+              <p-inputNumber id="defaultPayPrize" name="defaultPayPrize" [(ngModel)]="defaultPayPrize"
+                [disabled]="disableDefaultPayPrize" mode="currency" currency="BRL" locale="pt-BR" min="-1">
+              </p-inputNumber>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="md:col-4 field field-input-switch pt-3">
+            <p-checkbox name="selectedCommissionBonus" [binary]="true" [(ngModel)]="defaultBonusChecked"
+              [disabled]="disableDefaultBonusCheck" class="mt-5"></p-checkbox>
+            <label class="formTitle pt-2 mt-3 ml-3" for="selectedCommissionBonus">Bônus</label>
+          </div>
+          <div class="md:col-8 field">
+            <label for="name" class="formTitle">Valor <span class="text-danger">*</span></label>
+            <div class="p-inputgroup">
+              <span class="p-inputgroup-addon">R$</span>
+              <p-inputNumber id="defaultBonus" name="defaultBonus" [(ngModel)]="defaultBonus"
+                [disabled]="disableDefaultBonus" mode="currency" currency="BRL" locale="pt-BR"></p-inputNumber>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field col-12">
+        <label for="description" class="formTitle">Observação</label>
+        <textarea id="description" rows="4" pInputText [(ngModel)]="register.notes"
+          name="registerDescription"></textarea>
+      </div>
+
+      <div class="col-12 flex flex-row justify-content-end py-0">
+        <button type="button" label="Cancelar" icon="fa fa-ban" class="p-button-outlined p-button-light mr-3 md:w-10rem"
+          pButton (click)="displayModal = false"></button>
+        <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem" type="submit"
+          [disabled]="formRegister.invalid"></button>
+      </div>
+    </div>
+  </form>
+</p-dialog>

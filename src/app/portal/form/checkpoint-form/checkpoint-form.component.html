@@ -1,0 +1,78 @@
+<div class="ui-fluid">
+  <div class="grid">
+    <div class="col-12 lg:col-5">
+      <div class="card no-margin">
+        <form #checkpointSearchForm="ngForm" (ngSubmit)="search($event)">
+          <h5>Busca de Checkpoint</h5>
+          <div class="p-fluid grid form-group">
+            <div class="field col">
+              <label for="Identification">Buscar</label>
+              <div class="input-group-clear">
+                <input id="input" type="text" pInputText placeholder="Nome do checkpoint" [(ngModel)]="checkpointSearch.name"
+                  name="search" />
+                <a (click)="resetSearchForm()" *ngIf="checkpointSearch.name"><i class="pi pi-times"></i></a>
+              </div>
+            </div>
+            <div class="md:col-3 mt-3 pt-3">
+              <button type="submit" label="Buscar" icon="" class="p-element p-button p-component mr-3" pButton></button>
+            </div>
+            <div class="col-12 md:col-12">
+              <p-table #dt [columns]="cols" [value]="checkpointList" dataKey="id" [style]="{'margin-bottom':'20px'}"
+                  [responsive]="true" [resizableColumns]="true"
+                  selectionMode="single"  [(selection)]="checkpointRegister"  (onRowSelect)="edit($event)"
+                  [rows]="10" [showCurrentPageReport]="false"  [paginator]="true" [scrollable]="true">
+                <ng-template pTemplate="header" let-columns>
+                  <tr>
+                    <th *ngFor="let col of columns" [pSortableColumn]="col.field">
+                      {{col.header}}
+                      <p-sortIcon [field]="col.field"></p-sortIcon>
+                    </th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                  <tr [pSelectableRow]="rowData">
+                    <td *ngFor="let col of columns">
+                        {{rowData[col.field]?.value ? rowData[col.field]?.value : rowData[col.field] }}
+                    </td>
+                </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="col-12 lg:col-7">
+      <div class="card no-margin">
+        <form #checkpointRegisterForm="ngForm" (ngSubmit)="save()" novalidate>
+          <h5>Cadastro de Checkpoint</h5>
+          <div class="p-fluid grid form-group">
+            <div class="col-12 md:col-6 field">
+              <label for="registerName">Nome <span class="text-danger">*</span></label>
+              <input id="input" type="text" pInputText [(ngModel)]="checkpointRegister.name" name="registerName" required autocomplete="off"/>
+            </div>
+            <div class="col-12 md:col-6 field">
+              <label for="registerDescription">Descrição <span class="text-danger">*</span></label>
+              <input id="input" type="text" pInputText [(ngModel)]="checkpointRegister.description" name="registerDescription"/>
+            </div>
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="button" label="Cancelar" icon="fa fa-ban" class="p-button-outlined p-button-light mr-3 md:w-10rem"
+                  *ngIf="checkpointRegister.id" pButton (click)="resetRegisterForm()"></button>
+              <button type="button" label="Excluir" icon="fa fa-trash-o" class="p-button-outlined p-button-danger mr-3 md:w-10rem"
+                  *ngIf="checkpointRegister.id" pButton (click)="remove(checkpointRegister)"></button>
+              <button type="button" label="Novo" icon="fa fa-file-o" pButton class="p-button-outlined p-button-secondary mr-3 md:w-10rem"
+                (click)="resetRegisterForm()"></button>
+              <button type="submit" label="Salvar" icon="fa fa-save" pButton class="md:w-10rem"
+                [disabled]="checkpointRegisterForm.invalid"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

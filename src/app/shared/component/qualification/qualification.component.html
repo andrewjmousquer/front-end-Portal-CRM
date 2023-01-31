@@ -1,0 +1,130 @@
+<div class="grid mt-1">
+  <div class="col-12 pt-0 flex flex-row justify-content-end">
+    <button pButton *ngIf="!disabled" type="button" label="Adicionar" icon="fa fa-plus" [loading]="isLoadingTree"
+            class="p-button-outlined p-button-secondary md:w-10rem" (click)="openDialog()"></button>
+  </div>
+
+  <div class="col-12">
+
+    <p-table #dtmodel [columns]="cols" [value]="qualifications" dataKey="qualification" styleClass="mb-5"
+            [responsive]="true" [rows]="10" [showCurrentPageReport]="false" [paginator]="true"
+            [scrollable]="true" [resizableColumns]="true">
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns" [ngStyle]="{'width': col.width}">
+            {{col.header}}
+          </th>
+          <th class="trashModel">
+            <p></p>
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-columns="columns">
+        <tr [pSelectableRow]="rowData">
+          <td class="text-center">
+            {{rowData.qualification.name}}
+            <!-- {{formatQualification(rowData.qualification)}} -->
+            <!-- {{rowData.qualification.getFormatedPath(' > ')}} -->
+          </td>
+          <td>
+            <input name="comments{{rowIndex}}" id="comments{{rowIndex}}" type="text" pInputText
+                   [(ngModel)]="rowData.comments" [disabled]="disabled" />
+          </td>
+          <td class="justify-content-end trashModel">
+            <button pButton type="button" class="p-button p-button-rounded p-button-danger" icon="pi pi-trash"
+                    (click)="removeItem(rowData)" [disabled]="disabled"></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-dialog header="Qualificações" [(visible)]="displayModal" [modal]="true"
+          [style]="{width: '70%', height: '40rem'}" [closable]="false"
+          [baseZIndex]="10000" [draggable]="false" [resizable]="false">
+
+  <div class="ui-fluid">
+    <div class="grid">
+      <div class="col-6">
+        <p-treeTable #tt [value]="qualificationTree" [columns]="treeCols" dataKey="id" [(selection)]="selectedNodes"
+                          [scrollable]="true" scrollHeight="380px" (onNodeSelect)="nodeSelect($event)"
+                          (onNodeUnselect)="nodeUnselect($event)" selectionMode="checkbox">
+
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th *ngFor="let col of columns" [style.width]="col.width">
+                {{col.header}}
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
+            <tr>
+              <td [style.width]="columns[0].width">
+                <p-treeTableToggler [rowNode]="rowNode"></p-treeTableToggler>
+                <p-treeTableCheckbox [value]="rowNode" *ngIf="rowNode.node.leaf" ></p-treeTableCheckbox>
+                {{rowData.name}}
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td [attr.colspan]="treeCols.length">Não existem dados</td>
+            </tr>
+          </ng-template>
+        </p-treeTable>
+      </div>
+      <div class="col-6">
+        <p-table #dtmodel [columns]="cols" [value]="qualifications" dataKey="qualification" styleClass="mb-5"
+                 [responsive]="true" [rows]="10" [showCurrentPageReport]="false" [paginator]="true" [scrollable]="true"
+                 [resizableColumns]="true">
+
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th *ngFor="let col of columns" [ngStyle]="{'width': col.width}">
+                {{col.header}}
+              </th>
+              <th class="trashModel">
+                <p></p>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-rowIndex="rowIndex" let-columns="columns">
+            <tr [pSelectableRow]="rowData">
+              <td class="text-center">
+                {{rowData.qualification.name}}
+                <!-- {{rowData.qualification.getFormatedPath(' > ')}} -->
+              </td>
+              <td>
+                <input  name="comments{{rowIndex}}" id="comments{{rowIndex}}" type="text" pInputText
+                        [(ngModel)]="rowData.comments" />
+              </td>
+              <td class="justify-content-end trashModel">
+                <button pButton type="button" class="p-button p-button-rounded p-button-danger" icon="pi pi-trash"
+                        (click)="removeDialogItem( rowData )"></button>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="col-12 flex flex-row justify-content-end py-0">
+        <button type="button" label="Cancelar" icon="fa fa-ban" class="p-button-outlined p-button-light mr-3 md:w-10rem"
+                pButton (click)="cancel();"></button>
+        <button type="button" label="Adicionar" icon="fa fa-plus" class="md:w-10rem"
+                pButton (click)="save();"></button>
+      </div>
+    </div>
+  </div>
+</p-dialog>

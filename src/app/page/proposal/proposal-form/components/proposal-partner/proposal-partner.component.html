@@ -1,0 +1,471 @@
+<div>
+  <!-- header -->
+  <div class="grid">
+    <div class="col">
+      <div class="p-fluid grid form-group">
+        <wbp-field class="col-3" [(model)]="proposal.proposalDetail.channel" name="channel" label="Canal"
+          type="dropdown" required="true" [options]="channelList" (modelChange)="changeChannel(true)"></wbp-field>
+
+        <wbp-field class="col-3" optionLabel="person.name" type="dropdown" [(model)]="proposal.proposalDetail.seller"
+          name="executive" label="Executivo de Conta" required="true" [options]="executiveList"
+          (modelChange)="changeExecutive()"></wbp-field>
+
+        <wbp-field class="col-3" optionLabel="person.name" type="dropdown" [(model)]="proposal.proposalDetail.partner"
+          name="partner" label="Parceiro" required="true" [options]="partnerList"
+          [autoDisplayFirst]="partnerShowFirstSelected" (modelChange)="changePartner()"
+          *ngIf="proposal.proposalDetail?.channel?.hasPartner"></wbp-field>
+
+        <wbp-field class="col-3" optionLabel="person.name" type="dropdown"
+          [(model)]="proposal.proposalDetail.internSale" name="seller" label="Venda Interna" [required]="false"
+          [options]="sellerList" (modelChange)="changePartner()"
+          *ngIf="proposal.proposalDetail?.channel?.hasInternalSale"></wbp-field>
+      </div>
+    </div>
+  </div>
+
+  <!-- vehicle -->
+  <div class="p-fluid form-group mt-auto">
+    <div class="grid mt-4">
+      <div class="col-12">
+        <h5 class="mb-0">Veículo</h5>
+        <hr class="mt-0">
+      </div>
+    </div>
+    <div class="grid">
+      <wbp-field class="col-3" optionLabel="name" type="dropdown" [(model)]="proposal.proposalDetailVehicle.model.brand"
+        name="registerType" label="Marca" required="true" [options]="brandList"
+        [disabled]="proposal.proposalDetailVehicle.vehicle?.id" (modelChange)="changeBrand()"></wbp-field>
+
+      <wbp-field class="col-3" optionLabel="name" type="dropdown" [(model)]="proposal.proposalDetailVehicle.model"
+        name="modelRegister" label="Modelo" required="true" [options]="modelList"
+        [disabled]="proposal.proposalDetailVehicle.vehicle?.id" (modelChange)="changeModel()"></wbp-field>
+
+      <wbp-field class="col-3" type="number" label="Ano Modelo" [(model)]="proposal.proposalDetailVehicle.modelYear"
+        (modelChange)="setModelYear()" name="modelYear" [required]="true" maxlength="4"
+        [disabled]="proposal.proposalDetailVehicle.vehicle?.id"></wbp-field>
+
+      <wbp-field class="col-3" optionLabel="name" type="dropdown"
+        [(model)]="proposal.proposalDetailVehicle.priceProduct.productModel.product" name="productRegister"
+        label="Produto" required="true" [options]="productList" (modelChange)="changeProduct()"></wbp-field>
+    </div>
+    <div class="grid">
+      <div class="md:col-3">
+        <div class="grid">
+          <wbp-field class="col" type="switch" name="promptDelivery" label="Entrega Futura"
+            [(model)]="proposal.proposalDetailVehicle.futureDelivery" (modelChange)="changeFutureDelivery()"
+            [disabled]="proposal.proposalDetailVehicle.vehicle?.id"></wbp-field>
+
+          <wbp-field class="xl:col-8 col-6" type="text" name="plate" label="Placa"
+            [(model)]="proposal.proposalDetailVehicle.vehicle.plate" pattern="^[a-zA-Z]{3}[0-9][A-Za-z0-9][0-9]{2}$"
+            maxlength="7" (modelChange)="changePlate()" [disabled]="proposal.proposalDetailVehicle.futureDelivery">
+          </wbp-field>
+        </div>
+      </div>
+
+      <wbp-field class="md:col-3" type="text" name="chassi" label="Chassi"
+        [(model)]="proposal.proposalDetailVehicle.vehicle.chassi"
+        [required]="!proposal.proposalDetailVehicle.futureDelivery" maxlength="17" (modelChange)="changeChassi()"
+        [disabled]="proposal.proposalDetailVehicle.futureDelivery"></wbp-field>
+
+        <div class="md:col-3">
+          <div class="grid">
+            <wbp-field class="md:col-6" type="text" name="version" label="Versão"
+            [(model)]="proposal.proposalDetailVehicle.version"
+            maxlength="100" [disabled]="proposal.proposalDetailVehicle.futureDelivery"></wbp-field>
+
+            <wbp-field class="col-6" optionLabel="label" type="dropdown" [(model)]="proposal.proposalDetailVehicle.vehicle.color"
+            name="registerColor" label="Cor" [required]="!proposal.proposalDetailVehicle.futureDelivery" [options]="colorList"
+            [disabled]="proposal.proposalDetailVehicle.futureDelivery"></wbp-field>
+
+          </div>
+        </div>
+
+      <div class="md:col-3">
+        <div class="grid">
+          <wbp-field class="xl:col-6 col-6" type="decimal" label="Preço Compra"
+            [(model)]="proposal.proposalDetailVehicle.vehicle.purchaseValue" addonLeft="R$"
+            [disabled]="proposal.proposalDetailVehicle.futureDelivery" name="purchaseValue" [required]="false">
+          </wbp-field>
+
+          <wbp-field class="xl:col-6 col-6" type="calendar" label="Data Compra" name="purchaseDate" [required]="false"
+            [(model)]="proposal.proposalDetailVehicle.vehicle.purchaseDate"
+            [disabled]="proposal.proposalDetailVehicle.futureDelivery"></wbp-field>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- product -->
+  <div class="p-fluid form-group mt-auto mb-5">
+    <div class="grid mt-4">
+      <div class="col-12">
+        <h5 class="mb-0">Produto</h5>
+        <hr class="mt-0">
+      </div>
+    </div>
+
+    <p-table [value]="productItemProposalList">
+      <ng-template pTemplate="header">
+        <tr>
+          <th colspan="3">
+            <wbp-field optionLabel="name" type="dropdown" [(model)]="proposalItemSelected" name="productItemList"
+              required="true" [options]="productItemList" class="w-full" classField="mb-0"
+              placeholder="Selecione um item" (modelChange)="changeProductItem()"
+              [style]="!proposalItemsList ? 'max-width: 47rem;' : 'max-width: 22em;'"></wbp-field>
+          </th>
+          <th *ngIf="proposalItemsList" style="max-width: 15rem; width: 15rem;">
+            <wbp-field optionLabel="nameItem" type="dropdown" [(model)]="productItemRegister.proposalItem"
+              name="proposalItem" [options]="proposalItemsList" class="w-full" classField="mb-0"
+              placeholder="Configurações" (modelChange)="changeProposalItems()"
+              [disabled]="proposalItemsDisabled || !productItemCheck"
+              [style]="!proposalItemsList ? 'max-width: 47rem;' : 'max-width: 22em;'"></wbp-field>
+          </th>
+          <th>
+            <wbp-field type="decimal" [(model)]="productItemRegister.price" addonLeft="R$" name="price"
+              placeholder="Preço" [required]="true" [readonly]="true" [disabled]="true" classField="mb-0"></wbp-field>
+          </th>
+          <th>
+            <wbp-field type="decimal" [(model)]="productItemRegister.amountDiscount" addonLeft=" - R$" name="discount"
+              placeholder="Desconto" [required]="true" [max]="productItemRegister.price" min="0"
+              [disabled]="productItemRegister.forFree || !proposalItemSelected" classField="mb-0"
+              (modelChange)="calcFinalPrice(productItemRegister.amountDiscount, productItemRegister)"></wbp-field>
+          </th>
+          <th class="text-center">
+            <wbp-field type="checkbox" [(model)]="productItemRegister.forFree" name="forFree" [required]="true"
+              [disabled]="!productItemRegister.canForFree || !proposalItemSelected" classField="mb-0"
+              (modelChange)="changeForFree(productItemRegister.forFree, productItemRegister)"></wbp-field>
+          </th>
+          <th>
+            <wbp-field type="decimal" [(model)]="productItemRegister.finalPrice" addonLeft="R$" name="discount"
+              placeholder="Preço Final" [required]="true"
+              [disabled]="productItemRegister.forFree || !proposalItemSelected" [minFractionDigits]="2"
+              classField="mb-0" (modelChange)="calcAmountDiscount(productItemRegister.finalPrice, productItemRegister)">
+            </wbp-field>
+          </th>
+          <th>
+            <button *ngIf="proposalItemSelected" pButton type="button" class="p-button p-button-rounded p-button-success" icon="fa fa-plus"
+              (click)="addProductItemRegister(); recalcProposalPayment(); buildProposalDays(true);"></button>
+          </th>
+        </tr>
+        <tr>
+          <th>Tipo de Item</th>
+          <th>Configuração</th>
+          <th>Item</th>
+          <th class="text-right">Preço Tabela</th>
+          <th>Desconto</th>
+          <th class="text-center">Cortesia</th>
+          <th class="text-right">Preço</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-item let-rowIndex="rowIndex">
+        <tr>
+          <td>
+            {{item.name}}
+          </td>
+          <td>
+            <wbp-field *ngIf="item.configs" optionLabel="label" type="dropdown" [(model)]="item.config" dataKey="cod"
+              [name]="'proposalConfig' + rowIndex" [options]="item.configs" class="w-full" classField="mb-0"
+              placeholder="Configuração" (modelChange)="changeConfigItem(item.config.cod, item, true)"></wbp-field>
+          </td>
+          <td>
+            <wbp-field *ngIf="item.proposalItems && item.proposalItems[0] && item.proposalItems[0].cod"
+              optionLabel="nameItem" type="dropdown" [(model)]="item.proposalItem" dataKey="cod"
+              [name]="'proposalItems' + rowIndex" required="true" [options]="item.proposalItems" class="w-full"
+              classField="mb-0" placeholder="Item" (modelChange)="changeItem(item.proposalItem, item)"></wbp-field>
+          </td>
+          <td class="text-right">
+            {{item.price | currencyBR}}
+          </td>
+          <td>
+            <wbp-field type="decimal" [(model)]="item.amountDiscount" addonLeft="- R$" name="discount" [required]="true"
+              [max]="item.price" [min]="0" [disabled]="item.forFree" (onBlur)="calSumTotal(item.amountDiscount)"
+              classField="mb-0" (modelChange)="calcFinalPrice(item.amountDiscount, item)"></wbp-field>
+          </td>
+          <td class="text-center">
+            <wbp-field type="checkbox" [(model)]="item.forFree" name="'forFreegrid' + rowIndex" [required]="true"
+              [disabled]="!item.canForFree" classField="mb-0" (modelChange)="changeForFree(item.forFree, item)">
+            </wbp-field>
+          </td>
+          <td>
+            <wbp-field type="decimal" [(model)]="item.finalPrice" addonLeft="R$" name="finalPricegrid" [required]="true"
+              [min]="0" [disabled]="item.forFree" classField="mb-0"
+              (modelChange)="calcAmountDiscount(item.finalPrice, item)"></wbp-field>
+          </td>
+          <td>
+            <button *ngIf="item.remove" pButton type="button" class="p-button p-button-rounded p-button-danger"
+              icon="pi pi-trash" (click)="removeProductItem(rowIndex, item)"></button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer" let-product>
+        <tr>
+          <td colspan="4" class="text-right">Preço Tabela: {{proposalTotal.productPrice | currencyBR}}
+          </td>
+          <td class="text-right">Desconto: {{proposalTotal.productAmountDiscount | currencyBR }}</td>
+          <td></td>
+          <td class="text-right">Preço: {{proposalTotal.productFinalPrice | currencyBR}}</td>
+          <td></td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Informacao ao cliente-->
+  <div class="grid">
+    <div class="col-5">
+      <h5 class="mb-0">Informações ao Cliente</h5>
+      <hr class="mt-1" />
+      <div class="grid">
+        <div class="col-4 flex align-items-center justify-content-end proposalDetailLineResume">
+          <strong>Blindagem sem os opicionais:</strong>
+        </div>
+        <div class="col-2 flex align-items-center justify-content-end proposalDetailLineResume">
+          {{ totalBlindagemSemOpicionais || 0.00 | currencyBR}}
+        </div>
+        <div class="col-4 flex align-items-center justify-content-end proposalDetailLineResume"><strong>Prazo
+            Padrão:</strong></div>
+        <div class="col-2 flex align-items-center justify-content-center proposalDetailLineResume">
+          {{proposal.proposalDetailVehicle.standardTermDays || 0 }} Dias</div>
+
+        <div class="col-4 flex align-middle align-items-center justify-content-end proposalDetailLineResume">
+          <strong>Opicionais:</strong>
+        </div>
+        <div class="col-2 flex align-items-center justify-content-end proposalDetailLineResume">
+          {{ totalOpicionais || 0 | currencyBR}}
+        </div>
+        <div class="col-4 flex align-items-center justify-content-end proposalDetailLineResume">
+          <strong>Prazo Acordado:</strong>
+        </div>
+
+        <wbp-field class="col-2 flex align-items-center justify-content-end proposalDetailLineResume" type="number"
+          [(model)]="proposal.proposalDetailVehicle.agreedTermDays" addonRight="Dias" name="agreedTermDays"
+          [required]="true" [disabled]="!userUtil.isCheckpointEnable('PROPOSAL.EDIT.CONTRACT.DATE')" classField="mb-0">
+        </wbp-field>
+
+        <div class="col-4 flex align-items-center justify-content-end proposalDetailLineResume">
+          <strong>Desconto:</strong></div>
+        <div class="col-2 flex align-items-center justify-content-end proposalDetailLineResume">
+          {{ totalDesconto || 0 | currencyBR }}
+        </div>
+        <div class="col-4 flex align-items-center justify-content-end"></div>
+        <div class="col-2 flex align-items-center justify-content-end"></div>
+        <div class="col-4 flex align-items-center justify-content-end proposalDetailLineResume"><strong>Total:</strong>
+        </div>
+        <div class="col-2 flex align-items-center justify-content-end proposalDetailLineResume">
+          {{total | currencyBR}}
+        </div>
+        <div class="col-4 flex align-items-center justify-content-end"></div>
+        <div class="col-2 flex align-items-center justify-content-end"></div>
+      </div>
+    </div>
+
+    <!-- Totalização -->
+    <div class="col-6 col-offset-1">
+      <h5 class="mb-0">Totalização</h5>
+      <hr class="mt-1" />
+      <div class="grid">
+        <div class="col-9 flex align-items-center justify-content-end proposalDetailLineResumeTotal"><strong>(+)
+            Preço:</strong></div>
+        <div class="col-3 flex align-items-center justify-content-end proposalDetailLineResumeTotal">
+          {{proposalTotal.productFinalPrice | currencyBR}}</div>
+        <div class="col-9 flex align-items-center justify-content-end proposalDetailLineResumeTotal"><strong>(+) Over
+            Parceiro:</strong></div>
+
+        <wbp-field class="col-3 flex align-items-center justify-content-end proposalDetailLineResumeTotal"
+          type="decimal" [(model)]="proposal.proposalDetailVehicle.overPrice" addonLeft="R$" name="overPrice"
+          [required]="true" [min]="0" classField="mb-0"
+          (modelChange)="calSumTotal(proposal.proposalDetailVehicle.overPrice, 'overPrice')"></wbp-field>
+
+        <div class="col-9 flex flex-column align-items-end justify-content-end proposalDetailLineResumeTotal">
+          <strong>(-) Desconto Parceiro: #{{proposal.proposalDetailVehicle.overPricePartnerDiscountAmount}}#</strong>
+          <span class="font-normal text-600">Com redução do over parceiro</span>
+        </div>
+
+        <wbp-field class="col-3 flex align-items-center justify-content-end proposalDetailLineResumeTotal"
+          type="decimal" [(model)]="proposal.proposalDetailVehicle.overPricePartnerDiscountAmount" addonLeft="R$"
+          name="overPricePartnerDiscountAmount" [required]="true" [min]="0" classField="mb-0"
+          (modelChange)="calSumTotal(proposal.proposalDetailVehicle.overPricePartnerDiscountAmount, 'overPricePartnerDiscountAmount')">
+        </wbp-field>
+
+        <div class="col-9 flex flex-column align-items-end justify-content-end proposalDetailLineResumeTotal">
+          <strong>(-) Desconto Carbon:</strong>
+          <span class="font-normal text-600">Sem redução do over parceiro</span>
+        </div>
+
+        <wbp-field class="col-3 flex align-items-center justify-content-end proposalDetailLineResumeTotal"
+          type="decimal" [(model)]="proposal.proposalDetailVehicle.priceDiscountAmount" addonLeft="R$"
+          name="priceDiscountAmount" [required]="true" [min]="0" classField="mb-0"
+          (modelChange)="calSumTotal(proposal.proposalDetailVehicle.priceDiscountAmount, 'priceDiscountAmount')">
+        </wbp-field>
+
+        <div class="col-9 flex align-items-center justify-content-end proposalDetailLineResumeTotal">
+          <strong>Subtotal:</strong></div>
+        <div class="col-3 flex align-items-center justify-content-end proposalDetailLineResumeTotal">
+          {{ (proposalTotal.productFinalPrice || 0 )+((proposal.proposalDetailVehicle.overPrice ||
+          0)-(proposal.proposalDetailVehicle.overPricePartnerDiscountAmount ||
+          0)-(proposal.proposalDetailVehicle.priceDiscountAmount || 0)) | currencyBR}}
+        </div>
+        <div class="col-9 flex align-items-center justify-content-end proposalDetailLineResumeTotal"><strong>(+)
+            Juros|Desconto:</strong></div>
+        <div class="col-3 flex align-items-center justify-content-end proposalDetailLineResumeTotal">
+          {{ proposal.proposalDetailVehicle.totalTaxAmount || 0 | currencyBR }}
+        </div>
+        <div class="col-9 flex align-items-center justify-content-end proposalDetailLineResumeTotal">
+          <strong>Total:</strong></div>
+        <div class="col-3 flex align-items-center justify-content-end proposalDetailLineResumeTotal">
+          <strong>{{total || 0 | currencyBR}}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p-tabView>
+    <!-- financial -->
+    <p-tabPanel header="Financeiro">
+      <div class="p-fluid form-group mt-auto mb-5">
+        <div class="grid mt-4">
+          <div class="col-12 text-right mt-1 mb-3">
+            <button type="button" label="Adicionar" icon="fa fa-plus" pButton
+              class="p-button-outlined p-button-secondary md:w-10rem" (click)="addProposalPayment(true)"
+              [disabled]="!proposal.proposalDetailVehicle.totalAmount"></button>
+          </div>
+        </div>
+        <p-table [value]="proposal.proposalPayment" [scrollable]="true" scrollDirection="both" [resizableColumns]="true"
+          [autoLayout]="true">
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width:180px">Pagador</th>
+              <th style="width:180px">Evento</th>
+              <th style="width:180px">Data Pactuada</th>
+              <th style="width:90px">Qtde. de Dias</th>
+              <th style="width:180px">Valor</th>
+              <th style="width:120px">Porcent.</th>
+              <th style="width:180px">Meio de Pagamento</th>
+              <th style="width:180px">Parcelas</th>
+              <th style="width:180px">Valor da Parcela</th>
+              <th style="width:180px">Juros</th>
+              <th style="width:100px">Pré Aprovado</th>
+              <th style="width:90px">Fat. Ant?</th>
+              <th style="width:90px">Fat. Carbon?</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-payment let-rowIndex="rowIndex">
+            <tr>
+              <td style="width:180px">
+                <wbp-field optionLabel="label" type="dropdown" [(model)]="payment.payer" name="payerType"
+                  required="true" [options]="payerTypeList" class="w-full" classField="mb-0" placeholder="Pagador"
+                  (modelChange)="loadPayerType()">
+                </wbp-field>
+              </td>
+              <td style="width:180px">
+                <wbp-field optionLabel="label" type="dropdown" [(model)]="payment.event" name="eventType"
+                  required="true" [options]="eventTypeList" class="w-full" classField="mb-0" placeholder="Evento"
+                  [disabled]="rowIndex == 0 && !canEditPaymentMain" (modelChange)="changeEventType(payment);">
+                </wbp-field>
+              </td>
+              <td style="width:180px">
+                <wbp-field class="w-full" classField="mb-0" type="calendar" name="dueDate" [required]="true"
+                  [(model)]="payment.dueDate" *ngIf="payment.showDueDate" [disabled]="!payment.canEditDueDate"
+                  [minDate]="!rowIndex ? proposalMinDueDate : null" [maxDate]="!rowIndex ? proposalMaxDueDate : null">
+                </wbp-field>
+              </td>
+              <td style="width:90px">
+                <wbp-field *ngIf="payment.showQuantityDays" type="text" [(model)]="payment.quantityDays"
+                  (modelChange)="validationDays(payment)" name="quantityDays" [required]="false"
+                  classField="mb-0"></wbp-field>
+              </td>
+              <td style="width:180px">
+                <wbp-field type="decimal" [(model)]="payment.paymentAmount" addonLeft="R$"
+                  (modelChange)="calcFinancialPercent(payment)" name="paymentAmount" [required]="true"
+                  classField="mb-0"></wbp-field>
+              </td>
+              <td style="width:120px">
+                <wbp-field type="decimal" [(model)]="payment.paymentPercent" addonRight="%"
+                  (modelChange)="calcFinancialAmount(payment)" name="paymentPercent" [required]="true"
+                  [minFractionDigits]="1" [maxFractionDigits]="1" classField="mb-0"></wbp-field>
+              </td>
+              <td style="width:180px">
+                <wbp-field *ngIf="payment.showDueDate" optionLabel="name" type="dropdown"
+                  [(model)]="payment.paymentMethod" name="paymentMethod" required="true" [options]="paymentMethodList"
+                  class="w-full" classField="mb-0" placeholder="Meio"
+                  (modelChange)="changePaymentMethod(payment.paymentMethod, payment)"></wbp-field>
+              </td>
+              <td style="width:180px">
+                <wbp-field *ngIf="payment.showDueDate" optionLabel="label" type="dropdown"
+                  [(model)]="payment.paymentRule" name="city" required="true" [options]="payment.installmentsList"
+                  class="w-full" classField="mb-0" placeholder="Parcelas"
+                  (modelChange)="calcInstallmentAmount(payment.paymentRule, payment)">
+                </wbp-field>
+              </td>
+              <td style="width:180px">
+                <wbp-field type="decimal" [(model)]="payment.installmentAmount" addonLeft="R$"
+                  (modelChange)="changePlate()" [disabled]="futureDelivery || payment.canNotGenerateAcconuts" name="installmentAmount"
+                  [minFractionDigits]="2" [maxFractionDigits]="2" [required]="true" classField="mb-0"
+             ></wbp-field>
+              </td>
+              <td style="width:180px">
+                <wbp-field type="decimal" [(model)]="payment.interest" addonLeft="R$"
+                  (modelChange)="calcTotalTaxAmount(payment.interest, payment)" name="interest" [required]="true"
+                  classField="mb-0" [disabled]="futureDelivery || payment.canNotGenerateAcconuts" ></wbp-field>
+              </td>
+              <td style="width:100px" class="justify-content-center">
+                <!-- <i [ngClass]="{'pi pi-check-circle text-green-500' : payment.preApproved, 'pi pi-circle' : !payment.preApproved}"></i> -->
+                <div *ngIf="payment.showPaymentPreApproved">
+                  <img *ngIf="payment.preApproved" src="assets/layout/images/check.jpeg">
+                  <img *ngIf="!payment.preApproved" src="assets/layout/images/cancel.jpeg">
+                </div>
+              </td>
+              <td style="width:90px">
+                <wbp-field class="col" type="switch" name="fatAnt" [(model)]="payment.antecipatedBilling" classField="mb-0">
+                </wbp-field>
+              </td>
+              <td style="width:90px">
+                <wbp-field class="col" type="switch" name="fatCarbon" [(model)]="payment.carbonBilling" classField="mb-0">
+                </wbp-field>
+              </td>
+              <td style="width: 90px;">
+                <button *ngIf="rowIndex" pButton type="button" class="p-button p-button-rounded p-button-danger"
+                  icon="pi pi-trash" (click)="removeProposalPayment(rowIndex)"></button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </p-tabPanel>
+
+    <p-tabPanel header="Pedido de Compra">
+      <div class="grid">
+        <div class="col-4">
+          <span class="formTitle">N˚ de Pedido Serviços </span>
+        </div>
+        <div class="col-4">
+          <span class="formTitle">N˚ de Pedido Produtos 
+          </span>
+        </div>
+        <div class="col-4">
+          <span class="formTitle">N˚ de Pedido Documentação</span>
+        </div>
+        <div class="col-4">
+          <input id="input" type="text" pInputText [(ngModel)]="proposal.proposalDetail.purchaseOrderService"
+            name="purchaseOrderService" autocomplete="off" />
+        </div>
+        <div class="col-4">
+          <input id="input" type="text" pInputText [(ngModel)]="proposal.proposalDetail.purchaseOrderProduct"
+            name="purchaseOrderProduct" autocomplete="off" />
+        </div>
+        <div class="col-4">
+          <input id="input" type="text" pInputText [(ngModel)]="proposal.proposalDetail.purchaseOrderDocumentation"
+            name="purchaseOrderDocumentation" autocomplete="off" />
+        </div>
+      </div>
+    </p-tabPanel>
+
+    <p-tabPanel *ngIf="loadContract === true" header="Contrato">
+      <div class="md:col-12 field">
+        <label for="contractInformation" class="formTitle"></label>
+        <textarea style="width: 100%; height: 200px;" name="contractInformation" [(ngModel)]="proposal.contract" pInputTextarea></textarea>
+      </div>
+    </p-tabPanel>
+  </p-tabView>
+</div>

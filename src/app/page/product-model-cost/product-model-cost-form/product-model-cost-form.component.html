@@ -1,0 +1,256 @@
+<div class="ui-fluid">
+    <div class="grid">
+      <div class="ui-g-12 col-8">
+        <div class="card no-margin">
+          <form #productModelCostSearchForm="ngForm" (ngSubmit)="search($event)">
+            <h5>Busca de Custo por Modelo e Produto</h5>
+            <div class="p-fluid grid form-group">
+              
+              <div class="md:col-3 field">
+                <label for="brandSearch" class="formTitle">Marca <span class="text-danger">*</span></label>
+                <span class="ui-float-label">
+                  <p-dropdown [options]="brandSearchList" filter="true" [(ngModel)]="brandSearch" [autoDisplayFirst]="false"
+                    name="brandSearch" dataKey="id" optionDisabled="false" optionLabel="name"
+                    (onChange)="changeBrandSearch()" [showClear]="false" required></p-dropdown>
+                </span>
+              </div>
+
+              <div class="md:col-3 field">
+                <label for="modelSearch" class="formTitle">Modelo <span class="text-danger">*</span></label>
+                <span class="ui-float-label">
+                  <p-dropdown [options]="modelSearchList" filter="true" [(ngModel)]="modelSearch" [autoDisplayFirst]="false" 
+                  name="modelSearch" dataKey="id" optionDisabled="false" optionLabel="name" 
+                  (onChange)="changeModelSearch()" [showClear]="false" required></p-dropdown>
+                </span>
+              </div>
+
+              <div class="md:col-3 field">
+                <label for="productModelSearch" class="formTitle">Produto <span class="text-danger">*</span></label>
+                <span class="ui-float-label">
+                  <p-dropdown [options]="productModelSearchList" filter="true" [(ngModel)]="productModelSearch" [autoDisplayFirst]="false"
+                    name="productModelSearch" dataKey="id" optionDisabled="false" optionLabel="product.name" [showClear]="false" required></p-dropdown>
+                </span>
+              </div>
+
+              <div class="p-inputgroup">
+                <div class="md:col-3 field">
+                  <label for="startDateSearch" class="formTitle">Data Início</label>
+                  <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy"
+                    yearRange="2015:2030" name="startDate" [(ngModel)]="productModelCostSearch.startDate">
+                  </p-calendar>
+                </div>
+
+                <div class="md:col-3 field">
+                  <label for="endDateSearch" class="formTitle">Data Fim</label>
+                  <p-calendar [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy"
+                    yearRange="2015:2030" name="endDate" [(ngModel)]="productModelCostSearch.endDate">
+                  </p-calendar>
+                </div>
+              </div>
+
+              <div class="p-inputgroup">
+                <div class="field col">
+                  <label for="identificationSearch" class="formTitle">Buscar</label>
+                </div>
+
+                <div class="md:col-3 mt-3 pt-3">
+                  <button type="button" label="Limpar" icon="fa fa-times" pButton
+                  class="p-button-outlined p-button-secondary md:w-10rem" (click)="resetSearchForm()"></button>  
+                </div>
+
+                <div class="md:col-3 mt-3 pt-3">
+                  <button type="submit" label="Buscar" icon="fa fa-search" class="p-element p-button p-component md:w-10rem" pButton></button>
+                </div>
+              </div>
+
+              <div class="md:col-12">
+                <p-table #dt [columns]="cols" [value]="productModelCostSearchList" dataKey="id" [style]="{'margin-bottom':'20px'}"
+                  [responsive]="true" (onRowSelect)="edit($event)"
+                  [selection]="selectedProducModelCost" (selectionChange)="onSelectionChange($event)"
+                  (onRowUnselect)="resetRegisterForm()" [rows]="10" [showCurrentPageReport]="false" [paginator]="true"
+                  [scrollable]="true" [resizableColumns]="true">
+
+                  <ng-template pTemplate="caption">
+                    <div class="flex align-items-right justify-content-between">
+
+                        <button type="button" label="Período" icon="fa fa-calendar"
+                        class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="productModelCostRegister.id" pButton
+                        (click)="updatePeriods(selectedProducModelCost)"></button>
+
+                        <button type="button" label="Valores" icon="fa fa-dollar"
+                        class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="productModelCostRegister.id" pButton
+                        (click)="updateValues(selectedProducModelCost)"></button>
+
+                        <button type="button" label="Duplicar" icon="fa fa-clone"
+                        class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="productModelCostRegister.id" pButton
+                        (click)="duplicateMultiple(selectedProducModelCost)"></button>
+
+                    </div>
+                  </ng-template>
+
+                  <ng-template pTemplate="header" let-columns>
+                    <tr>
+                      <th style="width: 3rem">
+                        <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                    </th>
+                      <th *ngFor="let col of columns" [pSortableColumn]="col.field" [ngStyle]="{'width': col.width}">
+                        {{col.header}}
+                        <p-sortIcon [field]="col.field"></p-sortIcon>
+                      </th>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template pTemplate="body" let-rowData let-columns="columns">
+                    <tr [pSelectableRow]="rowData">
+                      <td>
+                        <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                      </td>
+                      <td style=" text-align: center;">
+                        {{rowData.productModel.model.brand.name}}
+                      </td>
+                      <td style=" text-align: center;">
+                        {{rowData.productModel.model.name}}
+                      </td>
+                      <td style=" text-align: center;">
+                        {{rowData.productModel.product.name}}
+                      </td>
+                      <td style=" text-align: center;">
+                        {{rowData.productModel.modelYearText}}
+                      </td>
+                      <td style=" text-align: center; width: 600px;">
+                        {{rowData.startDateEndDateText}}
+                      </td>
+                      <td style=" text-align: center;">
+                        {{rowData.totalValue | currencyBR}}
+                      </td>
+                    </tr>
+                  </ng-template>
+                  <ng-template pTemplate="emptymessage">
+                    <tr>
+                      <td colspan="8" class="justify-content-center">Sem registros encontrados</td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-12 lg:col-4">
+        <div class="card no-margin">
+          <form #productModelCostRegisterForm="ngForm" (ngSubmit)="save()" novalidate>
+            <h5>Cadastro de Custo por Modelo e Produto</h5>
+            <div class="p-fluid form-group">
+              
+              <div class="grid">
+
+                <div class="md:col-6 field">
+                  <label for="brandRegister" class="formTitle">Marca <span class="text-danger">*</span></label>
+                  <span class="ui-float-label">
+                    <p-dropdown [options]="brandList" filter="true" [(ngModel)]="brandRegister" [autoDisplayFirst]="false"
+                      name="brandRegister" dataKey="id" optionDisabled="false" optionLabel="name"
+                      (onChange)="changeBrand()" [showClear]="false" required>
+                    </p-dropdown>
+                  </span>
+                </div>
+                
+                <div class="md:col-6 field">
+                  <label for="model" class="formTitle">Modelo <span class="text-danger">*</span></label>
+                  <span class="ui-float-label">
+                    <p-dropdown [options]="modelList" filter="true" [(ngModel)]="modelRegister" [autoDisplayFirst]="false" 
+                    name="modelRegister" dataKey="id" optionDisabled="false" optionLabel="name" 
+                    (onChange)="changeModel()" [showClear]="false" required></p-dropdown>
+                  </span>
+                </div>
+
+              </div>
+              
+              <div class="grid">
+
+                <div class="md:col-6 field">
+                  <label for="productModel" class="formTitle">Produto <span class="text-danger">*</span></label>
+                  <span class="ui-float-label">
+                    <p-dropdown [options]="productModelList" filter="true" [(ngModel)]="productModelRegister" [autoDisplayFirst]="false"
+                      name="productModelRegister" dataKey="id" optionDisabled="false" optionLabel="product.name" 
+                      (onChange)="changeProductModel()" [showClear]="false" required></p-dropdown>
+                  </span>
+                </div>
+
+                <div class="md:col-6 field">
+                  <label for="productModelYear" class="formTitle">Faixa Ano Modelo <span class="text-danger">*</span></label>
+                  <span class="ui-float-label">
+                    <p-dropdown [options]="productModelYearList" filter="true" [(ngModel)]="productModelYearRegister" [autoDisplayFirst]="false"
+                      name="productModelYearRegister" dataKey="id" optionDisabled="false" optionLabel="modelYearText" [showClear]="false" required></p-dropdown>
+                  </span>
+                </div>
+              
+              </div>
+
+              <div class="grid">
+
+                <div class="md:col-6 field">
+                  <label for="float-input" class="formTitle">Data Início </label>
+                  <p-calendar name="startDate" [(ngModel)]="productModelCostRegister.startDate" [showButtonBar]="true"
+                    [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy"
+                    yearRange="2000:2100" required>
+                  </p-calendar>
+                </div>
+
+                <div class="md:col-6 field">
+                  <label for="float-input" class="formTitle">Data Fim </label>
+                  <p-calendar name="endDate" [(ngModel)]="productModelCostRegister.endDate" [showButtonBar]="true"
+                    [monthNavigator]="true" [yearNavigator]="true" [showIcon]="true" dateFormat="dd/mm/yy"
+                    yearRange="2000:2100" required>
+                  </p-calendar>
+                </div>
+              </div>
+
+              <div class="grid">
+
+                <div class="md:col-6 field">
+                  <label for="float-input" class="formTitle">Total </label>
+                  <div class="p-inputgroup">
+                    <span class="p-inputgroup-addon">R$</span>
+                    <p-inputNumber [(ngModel)]="productModelCostRegister.totalValue" mode="decimal" name="purchaseValue"
+                      [minFractionDigits]="2" [maxFractionDigits]="2" required>
+                    </p-inputNumber>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="button" label="Cancelar" icon="fa fa-ban"
+                class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="productModelCostRegister.id" pButton
+                (click)="resetRegisterForm()"></button>
+              <button type="button" label="Excluir" icon="fa fa-trash-o"
+                class="p-button-outlined p-button-danger mr-3 md:w-10rem" *ngIf="productModelCostRegister.id" pButton
+                (click)="remove(productModelCostRegister)"></button>
+            </div>
+
+            <br>
+
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="button" label="Duplicar" icon="fa fa-clone"
+                class="p-button-outlined p-button-light mr-3 md:w-10rem" *ngIf="productModelCostRegister.id" pButton
+                (click)="duplicateSingle(productModelCostRegister)"></button>
+              <button type="button" label="Novo" pButton icon="fa fa-file-o"
+                *ngIf="userUtil.isCheckpointEnable('PRODUCT.MODEL.COST.CREATE')"
+                class="p-button-outlined p-button-secondary mr-3 md:w-10rem" (click)="resetRegisterForm()"></button>
+            </div>
+
+            <br>
+
+            <div class="col-12 flex flex-row justify-content-end py-0">
+              <button type="submit" label="Salvar" pButton icon="fa fa-save" 
+                class="mr-3 md:w-10rem" *ngIf="userUtil.isCheckpointEnable('PRODUCT.MODEL.COST.CREATE') || isEdit"
+                [disabled]="productModelCostRegisterForm.invalid"></button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>  

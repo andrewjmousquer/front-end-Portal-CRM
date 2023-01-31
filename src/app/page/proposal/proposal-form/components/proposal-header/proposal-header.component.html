@@ -1,0 +1,45 @@
+<div class="grid">
+  <div class="col" *ngIf="register?.proposal?.salesOrder?.orderNumber !== null">
+    <h5>
+      <strong>Nº Pedido: </strong>
+      <span>{{register?.proposal?.salesOrder.orderNumber}}</span>
+    </h5>
+  </div>
+  <div class="col">
+    <h5>
+      <strong>Nº Proposta: </strong>
+      <span>{{register?.proposal?.proposalNumber}}</span>
+    </h5>
+  </div>
+  <div class="col text-right"  *ngIf="register?.proposal?.salesOrder?.orderNumber === null">
+    <h5>
+      <strong>Status: </strong>
+      <span>{{register?.proposal?.statusClassification?.label}}</span>
+    </h5>
+  </div>
+  <div class="col text-right"  *ngIf="register?.proposal?.salesOrder?.orderNumber !== null">
+    <h5>
+      <strong>Status: </strong>
+      <span>{{register?.proposal?.salesOrder?.statusClassification?.label}}</span>
+    </h5>
+  </div>
+  <div class="col text-right">
+    <h5>
+      <strong>Criação: </strong>
+      <span>{{register?.proposal?.createDate |  date: 'dd/MM/yyyy'}}</span>
+    </h5>
+  </div>
+  <div class="col text-right"  *ngIf="register?.proposal?.salesOrder?.orderNumber === null">
+    <h5>
+      <strong>Validade: </strong>
+      <span>{{register?.proposal?.validityDate |  date: 'dd/MM/yyyy'}}</span>
+    </h5>
+  </div>
+  <div class="col text-right">
+    <!--<button type="button" label="Versões" pButton class="p-button-outlined p-button-secondary md:w-7rem mr-2"></button>-->
+    <button type="button" icon="fa fa-print" pButton (click)="print()"
+      class="p-button-outlined p-button-secondary md:w-3rem mr-2"></button>
+    <button type="button" icon="fa fa-file-text" pButton (click)="downloadProposalReport()"
+      class="p-button-outlined p-button-secondary md:w-3rem"></button>
+  </div>
+</div>
